@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AntryGravity – AI Image Background Remover & Editor | Remove BG Instantly</title>
+  <meta name="description" content="Remove image backgrounds instantly with AI. Professional background removal, image editing, upscaling to 8K, product photos, passport photos, and batch processing. Free trial."/>
+  <meta name="keywords" content="background remover, AI background removal, remove bg, image editor, photo editor, product photography"/>
+  <link rel="canonical" href="https://antrygravity.com/"/>
+  <meta property="og:title" content="AntryGravity – AI Image Studio"/>
+  <meta property="og:description" content="Remove backgrounds, edit images, and create stunning visuals with AI. Professional results in seconds."/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://antrygravity.com/"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="AntryGravity – AI Image Studio"/>
+  <meta name="theme-color" content="#0a0f1e"/>
+
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+
+  <style>
+    /* ─── Homepage-specific styles ─── */
+    .page-wrap { padding-top: var(--nav-height); }
+
+    /* ─── Hero ─── */
+    .hero {
+      position: relative;
+      min-height: calc(100vh - var(--nav-height));
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      padding-block: var(--space-16) var(--space-24);
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--gradient-hero);
+      pointer-events: none;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: var(--space-16);
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 0.35rem 1rem;
+      background: rgba(59,130,246,0.10);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: var(--brand-blue-300);
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-6);
+    }
+    .hero-tag-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--color-success);
+      animation: pulse-dot 2s infinite;
+    }
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+      margin-bottom: var(--space-6);
+    }
+    .hero-title .accent { color: var(--brand-blue-400); }
+    .hero-desc {
+      font-size: var(--text-lg);
+      color: var(--text-secondary);
+      line-height: 1.75;
+      max-width: 480px;
+      margin-bottom: var(--space-8);
+    }
+    .hero-cta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-8);
+    }
+    .hero-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-3);
+    }
+    .hero-feature-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .hero-feature-item svg { width: 14px; height: 14px; color: var(--brand-blue-400); flex-shrink: 0; }
+
+    /* Hero visual */
+    .hero-visual {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .hero-ba-container {
+      position: relative;
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-xl), var(--shadow-glow-blue);
+      aspect-ratio: 5/4;
+      background: var(--bg-surface);
+    }
+    .hero-ba-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .ba-before, .ba-after {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+    .ba-after {
+      clip-path: inset(0 50% 0 0);
+    }
+    .ba-handle {
+      position: absolute;
+      top: 0; bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      background: white;
+      z-index: 10;
+      cursor: col-resize;
+    }
+    .ba-handle-circle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: col-resize;
+    }
+    .ba-handle-circle svg { width: 20px; height: 20px; color: #0a0f1e; }
+    /* The after side shows checker bg for transparent effect */
+    .ba-after-inner {
+      position: absolute;
+      inset: 0;
+    }
+    .ba-after-inner img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    /* Float cards around hero */
+    .float-card-1 { animation: float-y 4s ease-in-out infinite; }
+    .float-card-2 { animation: float-y-delayed 5s ease-in-out infinite; }
+    .float-card-3 { animation: float-y 6s ease-in-out infinite; animation-delay: -2s; }
+
+    /* Tools grid */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+    }
+
+    /* Icon color variants */
+    .icon-blue   { background: rgba(37,99,235,0.12);  color: var(--brand-blue-400); }
+    .icon-purple { background: rgba(124,58,237,0.12); color: var(--brand-purple-400); }
+    .icon-cyan   { background: rgba(6,182,212,0.12);  color: var(--brand-cyan-400); }
+    .icon-green  { background: rgba(16,185,129,0.12); color: var(--color-success); }
+    .icon-orange { background: rgba(249,115,22,0.12); color: #fb923c; }
+    .icon-pink   { background: rgba(236,72,153,0.12); color: #f472b6; }
+    .icon-yellow { background: rgba(234,179,8,0.12);  color: #facc15; }
+    .icon-red    { background: rgba(239,68,68,0.12);  color: var(--color-error); }
+
+    /* How it works connectors */
+    .how-connector {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--brand-blue-500), var(--brand-purple-600));
+      opacity: 0.3;
+    }
+
+    /* Upscaler comparison */
+    .upscale-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .upscale-side {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: var(--bg-glass);
+    }
+    .upscale-side img { width: 100%; height: 100%; object-fit: cover; }
+    .upscale-label {
+      position: absolute;
+      bottom: var(--space-2);
+      left: var(--space-2);
+      padding: 3px 10px;
+      background: rgba(0,0,0,0.75);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+      color: white;
+    }
+
+    /* CTA section */
+    .cta-section {
+      background: var(--gradient-brand);
+      border-radius: var(--radius-3xl);
+      padding: var(--space-20) var(--space-12);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.10) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 900;
+      color: white;
+      letter-spacing: -0.03em;
+      margin-bottom: var(--space-4);
+    }
+    .cta-desc {
+      font-size: var(--text-lg);
+      color: rgba(255,255,255,0.80);
+      margin-bottom: var(--space-8);
+    }
+
+    /* Testimonials grid */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-5);
+    }
+
+    /* Batch preview */
+    .batch-preview {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-2xl);
+      overflow: hidden;
+    }
+    .batch-preview-header {
+      padding: var(--space-4) var(--space-5);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .batch-item-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .batch-item-row:last-child { border-bottom: none; }
+    .batch-thumb {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+    .batch-item-name { font-size: var(--text-sm); font-weight: 500; color: var(--text-primary); flex: 1; }
+    .batch-item-size { font-size: var(--text-xs); color: var(--text-muted); }
+
+    /* Pricing grid */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+      align-items: start;
+    }
+
+    /* API Code Block */
+    .code-block {
+      background: var(--bg-sidebar);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+      line-height: 1.8;
+      overflow-x: auto;
+    }
+    .code-block .kw  { color: var(--brand-purple-400); }
+    .code-block .str { color: var(--color-success); }
+    .code-block .cm  { color: var(--text-muted); }
+    .code-block .fn  { color: var(--brand-blue-300); }
+
+    /* Background Generator Preview */
+    .bg-gen-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+    }
+    .bg-gen-item {
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      aspect-ratio: 4/3;
+      position: relative;
+      cursor: pointer;
+    }
+    .bg-gen-item::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: var(--space-2) var(--space-3);
+      background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .hero-grid   { grid-template-columns: 1fr; gap: var(--space-12); }
+      .tools-grid  { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .pricing-grid { grid-template-columns: 1fr; }
+      .tools-grid   { grid-template-columns: 1fr 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .bg-gen-grid  { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .tools-grid { grid-template-columns: 1fr; }
+      .hero-cta   { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav class="navbar" id="navbar" role="navigation" aria-label="Main navigation">
+  <div class="navbar-inner">
+    <!-- Logo -->
+    <a href="index.html" class="logo" aria-label="AntryGravity Home">
+      <div class="logo-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <span class="logo-name">AntryGravity</span>
+        <span class="logo-tagline">AI Image Studio</span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav -->
+    <ul class="nav-links" role="list">
+      <li><a href="index.html" class="nav-link active">Home</a></li>
+      <li class="nav-dropdown-wrap" style="position:relative">
+        <a href="#" class="nav-link" aria-haspopup="true">
+          Features
+          <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <div class="nav-dropdown" role="menu">
+          <a href="tool.html" class="nav-dropdown-item" role="menuitem">
+            <div class="item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+            <div><div class="item-label">Background Remover</div><div class="item-desc">AI-powered removal</div></div>
+          </a>
+          <a href="upscaler.html" class="nav-dropdown-item" role="menuitem">
+            <div class="item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+            <div><div class="item-label">Image Upscaler</div><div class="item-desc">Up to 8K resolution</div></div>
+          </a>
+          <a href="product-studio.html" class="nav-dropdown-item" role="menuitem">
+            <div class="item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+            <div><div class="item-label">Product Studio</div><div class="item-desc">E-commerce photos</div></div>
+          </a>
+          <a href="passport-photo.html" class="nav-dropdown-item" role="menuitem">
+            <div class="item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div><div class="item-label">Passport Photo</div><div class="item-desc">Official-size photos</div></div>
+          </a>
+          <a href="batch.html" class="nav-dropdown-item" role="menuitem">
+            <div class="item-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <div><div class="item-label">Batch Processing</div><div class="item-desc">Multiple images at once</div></div>
+          </a>
+        </div>
+      </li>
+      <li><a href="#ai-tools" class="nav-link">AI Tools</a></li>
+      <li><a href="pricing.html" class="nav-link">Pricing</a></li>
+      <li><a href="api-docs.html" class="nav-link">API</a></li>
+      <li><a href="#blog" class="nav-link">Blog</a></li>
+      <li><a href="#contact" class="nav-link">Contact</a></li>
+    </ul>
+
+    <!-- Right -->
+    <div class="nav-right">
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle dark/light mode" title="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="tool.html" class="btn btn-primary btn-sm">Get Started Free</a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── MOBILE MENU ──────────────────────────────────────── -->
+<div class="mobile-menu" id="mobile-menu" role="dialog" aria-label="Mobile navigation" aria-modal="true">
+  <div style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-4);">
+    <a href="index.html" class="mobile-nav-link">Home</a>
+    <a href="tool.html" class="mobile-nav-link">Background Remover</a>
+    <a href="upscaler.html" class="mobile-nav-link">Image Upscaler</a>
+    <a href="product-studio.html" class="mobile-nav-link">Product Studio</a>
+    <a href="passport-photo.html" class="mobile-nav-link">Passport Photo</a>
+    <a href="batch.html" class="mobile-nav-link">Batch Processing</a>
+    <a href="pricing.html" class="mobile-nav-link">Pricing</a>
+    <a href="api-docs.html" class="mobile-nav-link">API</a>
+    <a href="#contact" class="mobile-nav-link">Contact</a>
+    <div style="display:flex; gap:var(--space-3); margin-top:var(--space-4);">
+      <a href="dashboard.html" class="btn btn-secondary" style="flex:1">Sign In</a>
+      <a href="tool.html" class="btn btn-primary" style="flex:1">Get Started</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+<!-- ─── HERO ─────────────────────────────────────────────── -->
+<section class="hero section" aria-labelledby="hero-heading">
+  <div class="bg-orb bg-orb-1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-2" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb-3" aria-hidden="true"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <!-- Left: Copy -->
+      <div>
+        <div class="hero-tag" aria-label="AI Powered, 2K 4K 8K resolution, No Watermark">
+          <span class="hero-tag-dot" aria-hidden="true"></span>
+          AI Powered &nbsp;•&nbsp; 2K/4K/8K &nbsp;•&nbsp; No Watermark
+        </div>
+        <h1 class="hero-title" id="hero-heading">
+          Remove Background<br/><span class="accent">Like a Pro</span>
+        </h1>
+        <p class="hero-desc">
+          Transform your images with powerful AI background removal and professional image editing tools. Get clean, high-quality results in seconds.
+        </p>
+        <div class="hero-cta">
+          <a href="tool.html" class="btn btn-primary btn-xl animate-glow-blue" id="hero-cta-start">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Start Removing Now
+          </a>
+          <button class="btn btn-secondary btn-xl" id="hero-cta-demo" aria-label="Watch demo video">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>
+            Watch Demo
+          </button>
+        </div>
+        <div class="hero-features">
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            AI Background Removal
+          </div>
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Image Enhancement
+          </div>
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Product Photo Studio
+          </div>
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Passport Photo Studio
+          </div>
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Batch Processing
+          </div>
+          <div class="hero-feature-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            API Access
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Before/After Demo -->
+      <div class="hero-visual">
+        <div class="hero-ba-container" id="hero-ba" role="img" aria-label="Before and after comparison of AI background removal">
+          <!-- Before -->
+          <div class="ba-before">
+            <div style="position:absolute;inset:0;background:linear-gradient(135deg,#1a4a6e 0%,#0d2137 50%,#1a3a5c 100%);">
+              <!-- Simulated photo with background -->
+              <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;">
+                <div style="width:70%;height:85%;background:linear-gradient(160deg,#e8d5b0 0%,#c4a882 40%,#8b6b4a 100%);border-radius:8px 8px 4px 4px;position:relative;overflow:hidden;">
+                  <!-- Person silhouette -->
+                  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:90%;background:linear-gradient(180deg,#d4956a 0%,#8b5e3c 40%,#1a1a2e 80%);border-radius:50% 50% 0 0 / 30% 30% 0 0;"></div>
+                  <div style="position:absolute;bottom:65%;left:50%;transform:translateX(-50%);width:32%;height:38%;background:linear-gradient(180deg,#f5c5a3 0%,#d4956a 100%);border-radius:50%;border:3px solid #e8b090;"></div>
+                </div>
+                <div style="position:absolute;top:10%;right:5%;width:15%;height:20%;background:rgba(255,255,255,0.1);border-radius:8px;backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.15);"></div>
+                <div style="position:absolute;bottom:15%;left:5%;width:20%;height:12%;background:rgba(255,150,50,0.2);border-radius:6px;"></div>
+              </div>
+            </div>
+            <div class="ba-label">Before</div>
+          </div>
+          <!-- After -->
+          <div class="ba-after">
+            <div class="ba-after-inner checker-bg" style="position:absolute;inset:0;">
+              <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                <div style="width:70%;height:85%;position:relative;">
+                  <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:60%;height:90%;background:linear-gradient(180deg,#d4956a 0%,#8b5e3c 40%,#1a1a2e 80%);border-radius:50% 50% 0 0 / 30% 30% 0 0;"></div>
+                  <div style="position:absolute;bottom:65%;left:50%;transform:translateX(-50%);width:32%;height:38%;background:linear-gradient(180deg,#f5c5a3 0%,#d4956a 100%);border-radius:50%;border:3px solid #e8b090;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="ba-label">After</div>
+          </div>
+          <!-- Handle -->
+          <div class="ba-handle" id="ba-handle">
+            <div class="ba-handle-circle">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/><polyline points="9 6 15 12 9 18" style="transform:translateX(6px)"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating feature cards -->
+        <div class="float-card float-card-1" style="top: 8%; right: -5%; z-index: 20;" aria-hidden="true">
+          <div class="float-card-icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
+          <span>Product Photo</span>
+        </div>
+        <div class="float-card float-card-2" style="bottom: 28%; left: -8%; z-index: 20;" aria-hidden="true">
+          <div class="float-card-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <span>Passport Photo</span>
+        </div>
+        <div class="float-card float-card-3" style="bottom: 8%; right: -5%; z-index: 20;" aria-hidden="true">
+          <div class="float-card-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+          <span>AI Upscale</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TRUST BAR ─────────────────────────────────────────── -->
+<div class="trust-bar reveal" aria-label="Platform statistics">
+  <div class="container">
+    <div class="trust-items">
+      <div class="trust-item">
+        <div class="trust-item-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <div>
+          <div class="trust-item-title"><span data-count="50000" data-suffix="+">50,000+</span></div>
+          <div class="trust-item-desc">Trusted Creators</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <div>
+          <div class="trust-item-title"><span data-count="2" data-suffix="M+">2M+</span></div>
+          <div class="trust-item-desc">Images Processed</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div>
+          <div class="trust-item-title"><span data-count="2.5" data-suffix="s avg">2.5s avg</span></div>
+          <div class="trust-item-desc">Processing Time</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <div>
+          <div class="trust-item-title"><span data-count="99.9" data-suffix="% uptime">99.9%</span></div>
+          <div class="trust-item-desc">Uptime SLA</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <div class="trust-item-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div>
+          <div class="trust-item-title"><span data-count="4.9" data-suffix="/5">4.9/5</span></div>
+          <div class="trust-item-desc">User Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── AI TOOLS ──────────────────────────────────────────── -->
+<section class="section" id="ai-tools" aria-labelledby="tools-heading">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">AI Tools</div>
+      <h2 class="section-title" id="tools-heading">Powerful AI Tools for Every Need</h2>
+      <p class="section-desc">More than just background removal — it's a complete AI image studio with everything you need.</p>
+    </div>
+    <div class="tools-grid stagger-children">
+      <a href="tool.html" class="tool-card" id="tool-bg-remover">
+        <div class="tool-card-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <div class="tool-card-title">Background Remover</div>
+        <div class="tool-card-desc">One-click professional AI background removal with perfect edge detection and hair refinement.</div>
+        <div class="tool-card-link">Try Now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="tool.html#editor" class="tool-card" id="tool-bg-editor">
+        <div class="tool-card-icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="tool-card-title">Background Editor</div>
+        <div class="tool-card-desc">Add color, gradient, blur or custom background to your images with professional controls.</div>
+        <div class="tool-card-link">Open Editor <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="upscaler.html" class="tool-card" id="tool-upscaler">
+        <div class="tool-card-icon icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+        <div class="tool-card-title">Image Upscaler</div>
+        <div class="tool-card-desc">Enhance image quality up to 8K with AI-powered upscaling and detail enhancement.</div>
+        <div class="tool-card-link">Upscale Image <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="product-studio.html" class="tool-card" id="tool-product">
+        <div class="tool-card-icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+        <div class="tool-card-title">Product Photo Studio</div>
+        <div class="tool-card-desc">Create stunning e-commerce product photos with studio backgrounds, shadow and reflection.</div>
+        <div class="tool-card-link">Open Studio <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="passport-photo.html" class="tool-card" id="tool-passport">
+        <div class="tool-card-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="tool-card-title">Passport Photo Studio</div>
+        <div class="tool-card-desc">Auto-detect face, replace background and create passport-size photos with multiple styles.</div>
+        <div class="tool-card-link">Create Photo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="batch.html" class="tool-card" id="tool-batch">
+        <div class="tool-card-icon icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+        <div class="tool-card-title">Batch Processing</div>
+        <div class="tool-card-desc">Remove background from multiple images at once with asynchronous parallel processing.</div>
+        <div class="tool-card-link">Process Batch <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="#ai-generator" class="tool-card" id="tool-ai-bg">
+        <div class="tool-card-icon icon-yellow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <div class="tool-card-title">AI Background Generator</div>
+        <div class="tool-card-desc">Generate stunning AI backgrounds with a click. Describe and create unlimited backgrounds.</div>
+        <div class="tool-card-link">Generate Now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+      <a href="api-docs.html" class="tool-card" id="tool-api">
+        <div class="tool-card-icon icon-red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <div class="tool-card-title">Smart Editing Tools</div>
+        <div class="tool-card-desc">Erase, restore brush, refine edges, shadow, outline, reflection and more editing features.</div>
+        <div class="tool-card-link">Learn More <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ───────────────────────────────────────── -->
+<section class="section" style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);" aria-labelledby="how-heading">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Simple Process</div>
+      <h2 class="section-title" id="how-heading">Three Steps to Perfection</h2>
+      <p class="section-desc">Remove backgrounds from any image in seconds with our easy workflow.</p>
+    </div>
+    <div class="flex items-start gap-8 reveal" style="max-width: 900px; margin-inline: auto; align-items: flex-start;">
+      <div class="how-step">
+        <div class="how-step-number">1</div>
+        <div class="how-step-title">Upload Image</div>
+        <div class="how-step-desc">Drag & drop or click to upload. Supports JPG, PNG, and WEBP up to 25MB.</div>
+      </div>
+      <div class="how-connector" style="margin-top: 30px;" aria-hidden="true"></div>
+      <div class="how-step">
+        <div class="how-step-number">2</div>
+        <div class="how-step-title">AI Processes</div>
+        <div class="how-step-desc">Our AI detects the subject, removes the background and refines every edge with precision.</div>
+      </div>
+      <div class="how-connector" style="margin-top: 30px;" aria-hidden="true"></div>
+      <div class="how-step">
+        <div class="how-step-number">3</div>
+        <div class="how-step-title">Download Result</div>
+        <div class="how-step-desc">Get a transparent PNG, add a new background, or export in JPG/WEBP at any resolution.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── AI BACKGROUND GENERATOR ──────────────────────────── -->
+<section class="section" id="ai-generator" aria-labelledby="ai-bg-heading">
+  <div class="container">
+    <div class="flex gap-16 items-center reveal" style="flex-wrap: wrap;">
+      <div style="flex: 1; min-width: 280px;">
+        <div class="section-label" style="text-align: left; justify-content: flex-start;">AI Generated</div>
+        <h2 class="section-title" id="ai-bg-heading" style="text-align: left; max-width: none;">Generate Stunning<br/>AI Backgrounds</h2>
+        <p class="section-desc" style="text-align: left;">Describe any background and our AI generates it in seconds. Perfect for product photos, portraits, and creative projects.</p>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-6);">
+          <div class="hero-feature-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Luxury studio backgrounds</div>
+          <div class="hero-feature-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Natural outdoor scenes</div>
+          <div class="hero-feature-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Abstract gradients & textures</div>
+          <div class="hero-feature-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg> Custom prompt generation</div>
+        </div>
+        <a href="tool.html" class="btn btn-primary btn-lg" style="margin-top: var(--space-8);">Try AI Backgrounds</a>
+      </div>
+      <div style="flex: 1.2; min-width: 320px;">
+        <div class="bg-gen-grid">
+          <div class="bg-gen-item" data-label="Luxury Studio" style="background: linear-gradient(135deg, #1a0a2e 0%, #2d1554 50%, #1a0a2e 100%);"></div>
+          <div class="bg-gen-item" data-label="Marble Surface" style="background: linear-gradient(160deg, #e8e4e0 0%, #d4cfc9 40%, #c8c3bd 100%);"></div>
+          <div class="bg-gen-item" data-label="Natural Light" style="background: linear-gradient(135deg, #fef9f0 0%, #fde8c8 50%, #fbd5a0 100%);"></div>
+          <div class="bg-gen-item" data-label="Modern Office" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);"></div>
+          <div class="bg-gen-item" data-label="Gradient Sky" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+          <div class="bg-gen-item" data-label="E-commerce" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── IMAGE UPSCALER ─────────────────────────────────────── -->
+<section class="section" style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);" aria-labelledby="upscaler-heading">
+  <div class="container">
+    <div class="flex gap-16 items-center reveal" style="flex-wrap: wrap; flex-direction: row-reverse;">
+      <div style="flex: 1; min-width: 280px;">
+        <div class="section-label" style="text-align: left; justify-content: flex-start;">AI Upscaler</div>
+        <h2 class="section-title" id="upscaler-heading" style="text-align: left; max-width: none;">Upscale Images to<br/><span class="text-gradient">2K, 4K, 8K</span></h2>
+        <p class="section-desc" style="text-align: left;">Enhance any image resolution with AI upscaling. Recover lost detail, reduce noise, and get crystal-clear images ready for print or large displays.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-top: var(--space-6);">
+          <div class="stat-card"><div class="stat-value">8K</div><div class="stat-label">Max Resolution</div></div>
+          <div class="stat-card"><div class="stat-value">4×</div><div class="stat-label">Detail Enhancement</div></div>
+          <div class="stat-card"><div class="stat-value">AI</div><div class="stat-label">Noise Reduction</div></div>
+          <div class="stat-card"><div class="stat-value">Fast</div><div class="stat-label">Processing Speed</div></div>
+        </div>
+        <a href="upscaler.html" class="btn btn-primary btn-lg" style="margin-top: var(--space-8);">Upscale Your Image</a>
+      </div>
+      <div style="flex: 1; min-width: 320px;">
+        <div class="upscale-comparison">
+          <div class="upscale-side" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:var(--space-6);">
+              <div style="width:100%;height:100%;border-radius:8px;background:repeating-linear-gradient(0deg,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px),repeating-linear-gradient(90deg,rgba(255,255,255,0.03),rgba(255,255,255,0.03) 2px,transparent 2px,transparent 8px);"></div>
+            </div>
+            <div class="upscale-label">Original 480p</div>
+          </div>
+          <div class="upscale-side" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;padding:var(--space-6);">
+              <div style="width:100%;height:100%;border-radius:8px;background:linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(124,58,237,0.10) 100%);"></div>
+            </div>
+            <div class="upscale-label" style="background: rgba(59,130,246,0.8);">Enhanced 4K</div>
+          </div>
+        </div>
+        <p style="text-align: center; font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-3);">Results depend on original image quality and AI model capability</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PRICING ────────────────────────────────────────────── -->
+<section class="section" id="pricing" aria-labelledby="pricing-heading">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Pricing</div>
+      <h2 class="section-title" id="pricing-heading">Simple & Flexible Pricing</h2>
+      <p class="section-desc">Choose the plan that fits your needs. Upgrade anytime. All prices are in USD.</p>
+    </div>
+    <div class="pricing-grid reveal">
+      <!-- Free -->
+      <div class="pricing-card hover-lift">
+        <div class="pricing-plan-name">Free</div>
+        <div class="pricing-price"><sup>$</sup>0</div>
+        <div class="pricing-period">/ month · No credit card required</div>
+        <div class="pricing-plan-desc">Perfect for individuals getting started with AI image editing.</div>
+        <ul class="pricing-features" aria-label="Free plan features">
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> 5 credits/month</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Standard resolution</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Watermarked exports</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Basic editing tools</li>
+        </ul>
+        <a href="tool.html" class="btn btn-secondary w-full" id="pricing-free-cta">Get Started</a>
+      </div>
+      <!-- Pro (featured) -->
+      <div class="pricing-card featured hover-lift">
+        <div class="pricing-popular-badge">Most Popular</div>
+        <div class="pricing-plan-name">Pro</div>
+        <div class="pricing-price"><sup>$</sup>9<span style="font-size:var(--text-2xl)">.99</span></div>
+        <div class="pricing-period">/ month · billed monthly</div>
+        <div class="pricing-plan-desc">For professionals who need more power and no watermarks.</div>
+        <ul class="pricing-features" aria-label="Pro plan features">
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> 500 credits/month</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> HD/4K resolution</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> No watermarks</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Batch processing</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> All premium tools</li>
+        </ul>
+        <a href="pricing.html" class="btn w-full" style="background: white; color: var(--brand-navy-900); font-weight: 700;" id="pricing-pro-cta">Get Pro</a>
+      </div>
+      <!-- Business -->
+      <div class="pricing-card hover-lift">
+        <div class="pricing-plan-name">Business</div>
+        <div class="pricing-price"><sup>$</sup>29<span style="font-size:var(--text-2xl)">.99</span></div>
+        <div class="pricing-period">/ month · billed monthly</div>
+        <div class="pricing-plan-desc">For growing teams with high-volume needs and API access.</div>
+        <ul class="pricing-features" aria-label="Business plan features">
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> 2,000 credits/month</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> 8K resolution</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> API access</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Team workspace (5 seats)</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Priority processing</li>
+        </ul>
+        <a href="pricing.html" class="btn btn-primary w-full" id="pricing-biz-cta">Get Business</a>
+      </div>
+      <!-- Enterprise -->
+      <div class="pricing-card hover-lift">
+        <div class="pricing-plan-name">Enterprise</div>
+        <div class="pricing-price" style="font-size:var(--text-3xl)">Custom</div>
+        <div class="pricing-period">Contact us for pricing</div>
+        <div class="pricing-plan-desc">For large organizations with custom needs and dedicated support.</div>
+        <ul class="pricing-features" aria-label="Enterprise plan features">
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Custom credits</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Custom API limits</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Team management</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Custom branding</li>
+          <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span> Dedicated support</li>
+        </ul>
+        <a href="#contact" class="btn btn-outline w-full" id="pricing-ent-cta">Contact Sales</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ──────────────────────────────────────── -->
+<section class="section" style="background: var(--bg-surface); border-top: 1px solid var(--border-subtle);" aria-labelledby="testimonials-heading">
+  <div class="container">
+    <div class="section-header reveal">
+      <div class="section-label">Testimonials</div>
+      <h2 class="section-title" id="testimonials-heading">Loved by Creators Worldwide</h2>
+    </div>
+    <div class="testimonials-grid stagger-children">
+      <div class="testimonial-card">
+        <div class="testimonial-stars" aria-label="5 stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="testimonial-text">"AntryGravity completely transformed our e-commerce product photography workflow. We process hundreds of images per day with perfect backgrounds."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">SR</div>
+          <div><div class="testimonial-name">Sarah Rodriguez</div><div class="testimonial-role">E-commerce Manager, StyleBrand</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars" aria-label="5 stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="testimonial-text">"The hair and fine edge detection is unbelievably accurate. As a portrait photographer, the quality of results rivals expensive desktop software."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">MC</div>
+          <div><div class="testimonial-name">Marcus Chen</div><div class="testimonial-role">Portrait Photographer</div></div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars" aria-label="5 stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div class="testimonial-text">"The batch processing feature alone is worth the subscription. We process 500+ product images in minutes. The API integration was straightforward too."</div>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">AK</div>
+          <div><div class="testimonial-name">Alex Kim</div><div class="testimonial-role">CTO, MegaStore Inc.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ───────────────────────────────────────────────── -->
+<section class="section" id="faq" aria-labelledby="faq-heading">
+  <div class="container" style="max-width: 800px;">
+    <div class="section-header reveal">
+      <div class="section-label">FAQ</div>
+      <h2 class="section-title" id="faq-heading">Frequently Asked Questions</h2>
+    </div>
+    <div class="reveal">
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">How accurate is the AI background removal? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Our AI achieves high accuracy for most common subjects including people, products, animals, and objects. For complex images (intricate hair, transparent objects, similar foreground/background colors), you can use our manual refinement tools to perfect the result. Quality depends on the original image quality and the AI model in use.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">What file formats are supported? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">AntryGravity supports JPG, JPEG, PNG, and WEBP input formats. You can export results as transparent PNG, JPG, or WEBP. File size limits and resolution caps depend on your subscription plan.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">How does the credit system work? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Each AI operation costs a certain number of credits (configurable by admin). Background removal costs 1 credit by default. Credits are deducted only after a successful processing job. Failed jobs are eligible for refunds based on the configured refund policy. Credits do not roll over to the next month on the Free plan.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">Is there an API for developers? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes! Business and Enterprise plans include API access. You can create API keys in your dashboard, integrate background removal into your own applications, and track usage through our API dashboard. See the <a href="api-docs.html" style="color: var(--brand-blue-400);">API documentation</a> for details.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">Are my images stored permanently? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Processed images are stored in your project workspace and accessible as long as your account is active. Temporary processing files are automatically cleaned up after 24 hours. You can delete any project and its associated images at any time from your dashboard.</div></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-question" tabindex="0" role="button" aria-expanded="false">Can I use AntryGravity for commercial projects? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+        <div class="faq-answer"><div class="faq-answer-inner">Yes! All paid plans (Pro, Business, Enterprise) grant you full commercial usage rights for images processed through AntryGravity. The Free plan also permits commercial use, subject to the watermark policy. Please review our Terms of Service for complete details.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ───────────────────────────────────────────────── -->
+<section class="section-sm" id="contact" aria-labelledby="cta-heading">
+  <div class="container">
+    <div class="cta-section reveal" style="position:relative; z-index:1;">
+      <div class="section-label" style="color: rgba(255,255,255,0.7); justify-content: center;">Start Today</div>
+      <h2 class="cta-title" id="cta-heading">Create. Edit. Transform<br/>with AntryGravity</h2>
+      <p class="cta-desc">Join 50,000+ creators and businesses using AntryGravity to create stunning visuals.</p>
+      <div style="display: flex; gap: var(--space-4); justify-content: center; flex-wrap: wrap;">
+        <a href="tool.html" class="btn btn-xl" style="background: white; color: var(--brand-navy-900); font-weight: 800;" id="cta-start">Start Removing Now — It's Free</a>
+        <a href="pricing.html" class="btn btn-xl btn-secondary" id="cta-pricing">View Pricing</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FOOTER ─────────────────────────────────────────────── -->
+<footer class="footer" role="contentinfo" aria-label="Site footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand col -->
+      <div>
+        <a href="index.html" class="logo" style="margin-bottom: var(--space-4);">
+          <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+          <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">AI Image Studio</span></div>
+        </a>
+        <p class="footer-brand-desc">Professional AI image background removal and editing tools for creators, businesses, and developers.</p>
+        <div class="footer-social">
+          <a href="#" class="footer-social-link" aria-label="Twitter"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+          <a href="#" class="footer-social-link" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="#" class="footer-social-link" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+          <a href="#" class="footer-social-link" aria-label="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></a>
+        </div>
+      </div>
+      <!-- Product -->
+      <div>
+        <h3 class="footer-col-title">Product</h3>
+        <ul class="footer-links">
+          <li><a href="tool.html" class="footer-link">Background Remover</a></li>
+          <li><a href="upscaler.html" class="footer-link">Image Upscaler</a></li>
+          <li><a href="product-studio.html" class="footer-link">Product Studio</a></li>
+          <li><a href="passport-photo.html" class="footer-link">Passport Photo</a></li>
+          <li><a href="batch.html" class="footer-link">Batch Processing</a></li>
+        </ul>
+      </div>
+      <!-- Resources -->
+      <div>
+        <h3 class="footer-col-title">Resources</h3>
+        <ul class="footer-links">
+          <li><a href="#blog" class="footer-link">Blog</a></li>
+          <li><a href="api-docs.html" class="footer-link">API Docs</a></li>
+          <li><a href="#" class="footer-link">Changelog</a></li>
+          <li><a href="#" class="footer-link">Status Page</a></li>
+        </ul>
+      </div>
+      <!-- Company -->
+      <div>
+        <h3 class="footer-col-title">Company</h3>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">About</a></li>
+          <li><a href="#contact" class="footer-link">Contact</a></li>
+          <li><a href="#" class="footer-link">Careers</a></li>
+          <li><a href="pricing.html" class="footer-link">Pricing</a></li>
+        </ul>
+      </div>
+      <!-- Support -->
+      <div>
+        <h3 class="footer-col-title">Support</h3>
+        <ul class="footer-links">
+          <li><a href="#" class="footer-link">Help Center</a></li>
+          <li><a href="#" class="footer-link">Community</a></li>
+          <li><a href="#" class="footer-link">Report Issue</a></li>
+          <li><a href="admin.html" class="footer-link" style="opacity:0.5;">Admin Panel</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2026 AntryGravity. All rights reserved.</p>
+      <nav class="footer-legal" aria-label="Legal links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Policy</a>
+        <a href="#">Refund Policy</a>
+      </nav>
+    </div>
+  </div>
+</footer>
+
+</div><!-- end .page-wrap -->
+
+<script type="module" src="js/pages/home.js"></script>
+</body>
+</html>

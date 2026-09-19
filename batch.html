@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Batch Image Processing – AntryGravity</title>
+  <meta name="description" content="Process multiple images at once with AI background removal. Upload up to 20 images and download all results in one click."/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <style>
+    .page-wrap { padding-top: var(--nav-height); min-height: 100vh; }
+    .batch-page { max-width: 1100px; margin: 0 auto; padding: var(--space-10) var(--space-6); }
+    .batch-header { margin-bottom: var(--space-8); }
+    .batch-title { font-family:var(--font-display); font-size:var(--text-3xl); font-weight:800; color:var(--text-primary); letter-spacing:-0.02em; margin-bottom:var(--space-2); }
+    .batch-grid { display: grid; grid-template-columns: 1fr 320px; gap: var(--space-6); align-items: start; }
+    /* Upload zone */
+    .batch-upload-zone { border:2px dashed var(--border-default); border-radius:var(--radius-2xl); padding:var(--space-10) var(--space-6); text-align:center; cursor:pointer; transition:all var(--transition-normal); display:flex; flex-direction:column; align-items:center; gap:var(--space-4); }
+    .batch-upload-zone:hover, .batch-upload-zone.drag-over { border-color:var(--brand-blue-500); background:rgba(37,99,235,0.04); }
+    .batch-upload-icon { width:64px;height:64px;border-radius:var(--radius-2xl);background:var(--gradient-brand-soft);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center; }
+    .batch-upload-icon svg { width:28px;height:28px;color:var(--brand-blue-400); }
+    /* File grid */
+    .batch-files-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:var(--space-3); margin-top:var(--space-5); }
+    .batch-file-item { border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border-subtle); background:var(--bg-card); position:relative; }
+    .batch-file-thumb { aspect-ratio:1; background:var(--bg-glass); display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .batch-file-thumb img { width:100%;height:100%;object-fit:cover; }
+    .batch-file-info { padding:var(--space-2) var(--space-3); }
+    .batch-file-name { font-size:var(--text-xs);color:var(--text-primary);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .batch-file-size { font-size:10px;color:var(--text-muted); }
+    .batch-file-status { position:absolute;top:var(--space-2);right:var(--space-2); }
+    .batch-progress-bar { height:3px;background:var(--bg-glass);border-radius:var(--radius-full);overflow:hidden; }
+    .batch-progress-fill { height:100%;background:var(--gradient-brand);border-radius:var(--radius-full);transition:width 0.3s ease; }
+    /* Sidebar */
+    .batch-sidebar { display:flex;flex-direction:column;gap:var(--space-5); }
+    .batch-settings-card { background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-2xl);overflow:hidden; }
+    .batch-settings-header { padding:var(--space-4) var(--space-5);border-bottom:1px solid var(--border-subtle);font-weight:700;font-size:var(--text-sm);color:var(--text-primary); }
+    .batch-settings-body { padding:var(--space-5);display:flex;flex-direction:column;gap:var(--space-4); }
+    .batch-stat { display:flex;justify-content:space-between;align-items:center; }
+    .batch-stat-label { font-size:var(--text-sm);color:var(--text-muted); }
+    .batch-stat-value { font-size:var(--text-sm);font-weight:700;color:var(--text-primary); }
+    @media (max-width:768px) { .batch-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">AI Image Studio</span></div>
+    </a>
+    <div style="display:flex;align-items:center;gap:var(--space-3);flex:1;padding:0 var(--space-6);">
+      <span style="font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);">Batch Processing</span>
+      <div class="status-badge" id="batch-status" role="status" style="display:none;"><div class="status-dot"></div> Processing...</div>
+    </div>
+    <div class="nav-right">
+      <div class="credits-display" style="padding:0.4rem 0.875rem;">
+        <div class="credits-display-icon" style="width:28px;height:28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div><div class="credits-amount" style="font-size:var(--text-base);" data-credits-display>245</div><div class="credits-label">Credits</div></div>
+      </div>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="batch-page">
+    <div class="batch-header">
+      <h1 class="batch-title">Batch Background Remover</h1>
+      <p style="color:var(--text-muted);font-size:var(--text-base);">Upload up to 20 images and remove backgrounds from all of them at once. 1 credit per image.</p>
+    </div>
+
+    <div class="batch-grid">
+      <!-- Main area -->
+      <div>
+        <!-- Drop zone (shown when no files) -->
+        <div class="batch-upload-zone" id="batch-zone" role="button" tabindex="0" aria-label="Upload images for batch processing">
+          <div class="batch-upload-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div style="font-size:var(--text-xl);font-weight:700;color:var(--text-primary);">Drop Images Here</div>
+          <div style="font-size:var(--text-sm);color:var(--text-muted);">or click to browse · up to 20 images</div>
+          <div style="display:flex;gap:var(--space-2);">
+            <span class="format-tag">JPG</span><span class="format-tag">PNG</span><span class="format-tag">WEBP</span>
+          </div>
+          <div style="display:flex;gap:var(--space-3);">
+            <button class="btn btn-primary" id="batch-select-btn">Select Files</button>
+            <button class="btn btn-secondary" id="batch-select-folder">Select Folder</button>
+          </div>
+        </div>
+
+        <!-- File grid (shown when files added) -->
+        <div id="files-area" class="hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-4);">
+            <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);">
+              <span id="file-count">0</span> images selected
+            </div>
+            <div style="display:flex;gap:var(--space-3);">
+              <button class="btn btn-secondary btn-sm" id="btn-add-more">+ Add More</button>
+              <button class="btn btn-secondary btn-sm" id="btn-clear-all">Clear All</button>
+            </div>
+          </div>
+          <div class="batch-files-grid" id="batch-files-grid" role="list" aria-label="Uploaded files"></div>
+          <!-- Overall progress -->
+          <div id="overall-progress" class="hidden" style="margin-top:var(--space-5);">
+            <div style="display:flex;justify-content:space-between;margin-bottom:var(--space-2);">
+              <span style="font-size:var(--text-sm);color:var(--text-secondary);" id="progress-label">Processing...</span>
+              <span style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);" id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar" style="height:6px;" role="progressbar" aria-label="Overall batch progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+              <div class="progress-fill" id="overall-progress-bar" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="batch-sidebar">
+        <!-- Settings -->
+        <div class="batch-settings-card">
+          <div class="batch-settings-header">Processing Settings</div>
+          <div class="batch-settings-body">
+            <div class="form-group">
+              <label class="form-label">Output Format</label>
+              <select class="form-input form-select" id="batch-format" aria-label="Output format">
+                <option value="png">PNG (Transparent)</option>
+                <option value="webp">WEBP (Transparent)</option>
+                <option value="jpg">JPG (with background)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Background Color (for JPG)</label>
+              <div style="display:flex;gap:var(--space-2);">
+                <input type="color" id="batch-bg-color" value="#ffffff" style="width:44px;height:44px;border-radius:var(--radius-md);border:1px solid var(--border-default);cursor:pointer;background:none;padding:3px;"/>
+                <input type="text" class="form-input" value="#FFFFFF" placeholder="#HEX" style="font-family:var(--font-mono);"/>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+              <label class="panel-row" style="cursor:pointer;">
+                <span class="panel-row-label">Refine Edges (+1 credit each)</span>
+                <div class="toggle"><input type="checkbox" id="batch-refine-edges" aria-label="Refine edges"/><div class="toggle-track"></div></div>
+              </label>
+              <label class="panel-row" style="cursor:pointer;">
+                <span class="panel-row-label">Auto filename suffix</span>
+                <div class="toggle"><input type="checkbox" id="batch-auto-suffix" checked aria-label="Add suffix to filenames"/><div class="toggle-track"></div></div>
+              </label>
+              <label class="panel-row" style="cursor:pointer;">
+                <span class="panel-row-label">Download as ZIP</span>
+                <div class="toggle"><input type="checkbox" id="batch-zip" checked aria-label="Download as ZIP"/><div class="toggle-track"></div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="batch-settings-card">
+          <div class="batch-settings-header">Summary</div>
+          <div class="batch-settings-body">
+            <div class="batch-stat"><span class="batch-stat-label">Total files</span><span class="batch-stat-value" id="summary-count">0</span></div>
+            <div class="batch-stat"><span class="batch-stat-label">Credits required</span><span class="batch-stat-value" id="summary-credits">0</span></div>
+            <div class="batch-stat"><span class="batch-stat-label">Credits available</span><span class="batch-stat-value" data-credits-display>245</span></div>
+            <div class="batch-stat"><span class="batch-stat-label">Est. time</span><span class="batch-stat-value" id="summary-time">–</span></div>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+          <button class="btn btn-primary btn-lg w-full" id="btn-start-batch" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="5 3 19 12 5 21"/></svg>
+            Start Processing
+          </button>
+          <button class="btn btn-secondary w-full" id="btn-stop-batch" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            Pause / Stop
+          </button>
+          <button class="btn btn-primary w-full" id="btn-download-all" style="display:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download All as ZIP
+          </button>
+          <button class="btn btn-ghost btn-sm w-full" id="btn-retry-failed" style="display:none;">Retry Failed Images</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { ThemeManager } from './js/core/theme.js';
+import { BatchProcessor } from './js/components/batch-processor.js';
+import { CreditService } from './js/services/credit-service.js';
+import { Notifications } from './js/components/notifications.js';
+import AppConfig from './config/app.config.js';
+
+const SUPPORTED = ['image/jpeg','image/png','image/webp'];
+let files = [];
+let processor = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  Notifications.init();
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', () => ThemeManager.toggle()));
+
+  // Hidden file input
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file'; fileInput.multiple = true; fileInput.accept = SUPPORTED.join(',');
+  fileInput.style.display = 'none'; document.body.appendChild(fileInput);
+  fileInput.addEventListener('change', () => addFiles(Array.from(fileInput.files)));
+
+  // Zone click
+  const zone = document.getElementById('batch-zone');
+  zone.addEventListener('click', () => fileInput.click());
+  zone.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') fileInput.click(); });
+  document.getElementById('batch-select-btn')?.addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
+
+  // Drag/drop
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', e => { if (!zone.contains(e.relatedTarget)) zone.classList.remove('drag-over'); });
+  zone.addEventListener('drop', e => { e.preventDefault(); zone.classList.remove('drag-over'); addFiles(Array.from(e.dataTransfer.files)); });
+
+  document.getElementById('btn-add-more')?.addEventListener('click', () => fileInput.click());
+  document.getElementById('btn-clear-all')?.addEventListener('click', () => { files = []; renderFileGrid(); updateSummary(); });
+
+  document.getElementById('btn-start-batch')?.addEventListener('click', startBatch);
+  document.getElementById('btn-stop-batch')?.addEventListener('click', () => { processor?.abort(); Notifications.warning('Stopped', 'Batch processing paused.'); });
+  document.getElementById('btn-retry-failed')?.addEventListener('click', () => processor?.retryFailed());
+});
+
+function addFiles(newFiles) {
+  const valid = newFiles.filter(f => SUPPORTED.includes(f.type));
+  if (valid.length < newFiles.length) Notifications.warning('Some files skipped', 'Only JPG, PNG, WEBP supported.');
+  files = [...files, ...valid].slice(0, AppConfig.upload.maxBatchFiles);
+  if (files.length === 0) return;
+  document.getElementById('batch-zone').classList.add('hidden');
+  document.getElementById('files-area').classList.remove('hidden');
+  document.getElementById('btn-start-batch').disabled = false;
+  renderFileGrid();
+  updateSummary();
+}
+
+function renderFileGrid() {
+  const grid = document.getElementById('batch-files-grid');
+  document.getElementById('file-count').textContent = files.length;
+  if (files.length === 0) {
+    document.getElementById('batch-zone').classList.remove('hidden');
+    document.getElementById('files-area').classList.add('hidden');
+    document.getElementById('btn-start-batch').disabled = true;
+    grid.innerHTML = ''; return;
+  }
+  grid.innerHTML = files.map((f, i) => {
+    const url = URL.createObjectURL(f);
+    const kb = (f.size / 1024).toFixed(0);
+    return `<div class="batch-file-item" role="listitem">
+      <div class="batch-file-thumb"><img src="${url}" alt="${f.name}" loading="lazy"/></div>
+      <div class="batch-file-info">
+        <div class="batch-file-name">${f.name}</div>
+        <div class="batch-file-size">${kb} KB</div>
+        <div class="batch-progress-bar" id="fp-${i}"><div class="batch-progress-fill" style="width:0%"></div></div>
+      </div>
+      <span class="batch-file-status" id="fs-${i}"><span class="badge badge-muted">Pending</span></span>
+    </div>`;
+  }).join('');
+}
+
+function updateSummary() {
+  const credits = files.length; // 1 per image (simplified)
+  document.getElementById('summary-count').textContent = files.length;
+  document.getElementById('summary-credits').textContent = credits;
+  document.getElementById('summary-time').textContent = files.length > 0 ? `~${Math.ceil(files.length * 2.5)}s` : '–';
+}
+
+async function startBatch() {
+  if (!files.length) return;
+  const credits = CreditService.getBalance();
+  if (credits < files.length) { Notifications.error('Insufficient Credits', `Need ${files.length} credits, have ${credits}.`); return; }
+  document.getElementById('btn-start-batch').style.display = 'none';
+  document.getElementById('btn-stop-batch').style.display = '';
+  document.getElementById('overall-progress').classList.remove('hidden');
+  document.getElementById('batch-status').style.display = 'flex';
+
+  let done = 0;
+  processor = new BatchProcessor({
+    onItemStart: item => {
+      const idx = processor.queue.indexOf(item);
+      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-warning');
+      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('textContent', 'Processing');
+    },
+    onItemProgress: (item, pct) => {
+      const idx = processor.queue.indexOf(item);
+      const bar = document.getElementById(`fp-${idx}`)?.querySelector('.batch-progress-fill');
+      if (bar) bar.style.width = pct + '%';
+    },
+    onItemComplete: item => {
+      done++;
+      const idx = processor.queue.indexOf(item);
+      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-success');
+      const pct = Math.round((done / files.length) * 100);
+      document.getElementById('overall-progress-bar').style.width = pct + '%';
+      document.getElementById('progress-pct').textContent = pct + '%';
+      document.getElementById('progress-label').textContent = `${done}/${files.length} completed`;
+    },
+    onItemError: (item) => {
+      const idx = processor.queue.indexOf(item);
+      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-danger');
+    },
+    onAllComplete: () => {
+      document.getElementById('btn-stop-batch').style.display = 'none';
+      document.getElementById('btn-download-all').style.display = '';
+      document.getElementById('batch-status').style.display = 'none';
+      Notifications.success('All Done!', `${done} images processed successfully.`);
+    },
+  });
+  processor.addFiles(files);
+  await processor.start();
+}
+</script>
+</body>
+</html>

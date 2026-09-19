@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Passport Photo Studio – AntryGravity</title>
+  <meta name="description" content="Create official passport photos with the correct size and background. Auto face detection and multiple country standards."/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <style>
+    .page-wrap { padding-top: var(--nav-height); min-height: 100vh; }
+    .passport-page { max-width: 1100px; margin: 0 auto; padding: var(--space-10) var(--space-6); }
+    .passport-title { font-family:var(--font-display); font-size:var(--text-3xl); font-weight:800; color:var(--text-primary); letter-spacing:-0.02em; margin-bottom:var(--space-2); }
+    .passport-grid { display:grid; grid-template-columns:1fr 340px; gap:var(--space-6); }
+    .passport-preview { background:var(--bg-card); border:1px solid var(--border-subtle); border-radius:var(--radius-2xl); overflow:hidden; }
+    .passport-canvas-wrap { background:var(--checker-bg,#4a4a4a); aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; position:relative; }
+    .passport-canvas-wrap .checker-bg { position:absolute; inset:0; }
+    .passport-face-guide { position:absolute; top:50%; left:50%; transform:translate(-50%, -56%); width:38%; aspect-ratio:1; border:2px dashed rgba(255,255,255,0.4); border-radius:50%; pointer-events:none; }
+    .passport-upload-overlay { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--space-4); padding:var(--space-6); }
+    .country-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-2); }
+    .country-btn { padding:var(--space-3); border-radius:var(--radius-lg); border:1px solid var(--border-subtle); background:var(--bg-glass); font-size:var(--text-xs); font-weight:600; cursor:pointer; text-align:center; transition:all var(--transition-fast); color:var(--text-secondary); }
+    .country-btn:hover { border-color:var(--border-default); color:var(--text-primary); }
+    .country-btn.active { background:var(--gradient-brand-soft); border-color:var(--border-accent); color:var(--brand-blue-300); }
+    .bg-color-row { display:flex; gap:var(--space-2); flex-wrap:wrap; }
+    .passport-bg-swatch { width:32px;height:32px;border-radius:var(--radius-md);cursor:pointer;border:2px solid transparent;transition:all var(--transition-fast); }
+    .passport-bg-swatch.active, .passport-bg-swatch:hover { border-color:var(--brand-blue-400);transform:scale(1.1); }
+    .print-grid { display:grid; grid-template-columns:repeat(3, 1fr); gap:var(--space-2); }
+    .print-slot { aspect-ratio:3/4; border-radius:var(--radius-lg); background:var(--bg-glass); border:1px solid var(--border-subtle); overflow:hidden; }
+    @media (max-width:768px) { .passport-grid { grid-template-columns:1fr; } .country-grid { grid-template-columns:repeat(4, 1fr); } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">AI Image Studio</span></div>
+    </a>
+    <div style="flex:1;padding:0 var(--space-6);"><span style="font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);">Passport Photo Studio</span></div>
+    <div class="nav-right">
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="passport-page">
+    <div class="batch-header" style="margin-bottom:var(--space-8);">
+      <h1 class="passport-title">Passport Photo Studio</h1>
+      <p style="color:var(--text-muted);">Auto-detect face, replace background, and create official passport-size photos for any country. 2 credits per download.</p>
+    </div>
+
+    <div class="passport-grid">
+      <!-- Preview area -->
+      <div>
+        <div class="passport-preview">
+          <div class="passport-canvas-wrap checker-bg" id="passport-canvas-wrap">
+            <!-- Face guide oval -->
+            <div class="passport-face-guide" aria-hidden="true"></div>
+            <!-- Upload overlay -->
+            <div class="passport-upload-overlay" id="passport-upload-overlay">
+              <div style="width:64px;height:64px;border-radius:var(--radius-2xl);background:var(--gradient-brand-soft);border:1px solid var(--border-accent);display:flex;align-items:center;justify-content:center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--brand-blue-400);"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div style="text-align:center;">
+                <div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary);">Upload Portrait Photo</div>
+                <div style="font-size:var(--text-sm);color:var(--text-muted);">Photo should show face clearly</div>
+              </div>
+              <button class="btn btn-primary" id="passport-upload-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Upload Photo
+              </button>
+            </div>
+            <!-- Canvas (hidden until photo uploaded) -->
+            <canvas id="passport-canvas" style="display:none;max-width:100%;max-height:100%;" aria-label="Passport photo preview"></canvas>
+          </div>
+          <!-- Print sheet preview -->
+          <div style="padding:var(--space-5);border-top:1px solid var(--border-subtle);">
+            <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--space-3);">Print Sheet Preview (4R / A4)</div>
+            <div class="print-grid">
+              <div class="print-slot" id="ps-1"></div>
+              <div class="print-slot" id="ps-2"></div>
+              <div class="print-slot" id="ps-3"></div>
+              <div class="print-slot" id="ps-4"></div>
+              <div class="print-slot" id="ps-5"></div>
+              <div class="print-slot" id="ps-6"></div>
+            </div>
+          </div>
+        </div>
+        <!-- AI Requirements banner -->
+        <div class="card" style="margin-top:var(--space-4);background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.2);">
+          <div style="display:flex;gap:var(--space-3);align-items:flex-start;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="color:var(--color-warning);flex-shrink:0;margin-top:2px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <div>
+              <div style="font-size:var(--text-sm);font-weight:700;color:var(--color-warning);">AI Provider Required</div>
+              <div style="font-size:var(--text-xs);color:var(--text-muted);margin-top:4px;">Real face detection requires a connected AI backend. Connect your provider in the <a href="admin.html" style="color:var(--brand-blue-400);">admin panel</a>. In demo mode, standard background removal is used.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings sidebar -->
+      <div style="display:flex;flex-direction:column;gap:var(--space-4);">
+        <!-- Country standard -->
+        <div class="batch-settings-card">
+          <div class="batch-settings-header">Country / Standard</div>
+          <div class="batch-settings-body">
+            <div class="form-group">
+              <label class="form-label">Search country</label>
+              <input type="search" class="form-input" placeholder="e.g. USA, UK, India..." id="country-search" aria-label="Search country passport standard"/>
+            </div>
+            <div class="country-grid" role="radiogroup" aria-label="Passport country standard">
+              <button class="country-btn active" data-size="35x45" data-country="USA">🇺🇸 USA<br/><small>2×2 in</small></button>
+              <button class="country-btn" data-size="35x45" data-country="UK">🇬🇧 UK<br/><small>35×45 mm</small></button>
+              <button class="country-btn" data-size="35x45" data-country="EU">🇪🇺 EU<br/><small>35×45 mm</small></button>
+              <button class="country-btn" data-size="25x35" data-country="India">🇮🇳 India<br/><small>25×35 mm</small></button>
+              <button class="country-btn" data-size="40x40" data-country="Canada">🇨🇦 Canada<br/><small>50×70 mm</small></button>
+              <button class="country-btn" data-size="35x45" data-country="Australia">🇦🇺 AUS<br/><small>35×45 mm</small></button>
+              <button class="country-btn" data-size="35x45" data-country="Bangladesh">🇧🇩 BD<br/><small>35×45 mm</small></button>
+              <button class="country-btn" data-size="35x45" data-country="UAE">🇦🇪 UAE<br/><small>43×55 mm</small></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Background color -->
+        <div class="batch-settings-card">
+          <div class="batch-settings-header">Background Color</div>
+          <div class="batch-settings-body">
+            <div class="bg-color-row" role="radiogroup" aria-label="Passport background color">
+              <div class="passport-bg-swatch active" style="background:#ffffff;" data-color="#ffffff" aria-label="White" role="radio" tabindex="0"></div>
+              <div class="passport-bg-swatch" style="background:#cfe2f3;" data-color="#cfe2f3" aria-label="Light Blue" role="radio" tabindex="0"></div>
+              <div class="passport-bg-swatch" style="background:#a8d8ea;" data-color="#a8d8ea" aria-label="Blue" role="radio" tabindex="0"></div>
+              <div class="passport-bg-swatch" style="background:#e8f5e9;" data-color="#e8f5e9" aria-label="Light Green" role="radio" tabindex="0"></div>
+              <div class="passport-bg-swatch" style="background:#f3e5f5;" data-color="#f3e5f5" aria-label="Light Purple" role="radio" tabindex="0"></div>
+              <div class="passport-bg-swatch" style="background:#f5f5f5;" data-color="#f5f5f5" aria-label="Light Gray" role="radio" tabindex="0"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:var(--space-2);margin-top:var(--space-2);">
+              <input type="color" id="custom-passport-bg" value="#ffffff" style="width:36px;height:36px;border-radius:var(--radius-sm);cursor:pointer;border:1px solid var(--border-default);background:none;padding:2px;"/>
+              <input type="text" class="form-input" value="#FFFFFF" placeholder="Custom HEX" style="font-family:var(--font-mono);font-size:var(--text-xs);"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Output options -->
+        <div class="batch-settings-card">
+          <div class="batch-settings-header">Output Options</div>
+          <div class="batch-settings-body">
+            <div class="form-group">
+              <label class="form-label">Format</label>
+              <select class="form-input form-select" aria-label="Output format">
+                <option>JPG (Print-ready)</option>
+                <option>PNG (Transparent)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">DPI</label>
+              <select class="form-input form-select" aria-label="DPI resolution">
+                <option>300 DPI (Print quality)</option>
+                <option>72 DPI (Screen)</option>
+                <option>600 DPI (High quality)</option>
+              </select>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+              <label class="panel-row" style="cursor:pointer;">
+                <span class="panel-row-label">Auto face centering</span>
+                <div class="toggle"><input type="checkbox" checked aria-label="Auto face centering"/><div class="toggle-track"></div></div>
+              </label>
+              <label class="panel-row" style="cursor:pointer;">
+                <span class="panel-row-label">Include print sheet</span>
+                <div class="toggle"><input type="checkbox" checked aria-label="Include print sheet"/><div class="toggle-track"></div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:flex;flex-direction:column;gap:var(--space-3);">
+          <button class="btn btn-primary btn-lg w-full" id="passport-process-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Generate Passport Photo (2 credits)
+          </button>
+          <button class="btn btn-secondary w-full" id="passport-download-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Photo
+          </button>
+          <button class="btn btn-secondary w-full" id="passport-print-btn" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Sheet PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { ThemeManager } from './js/core/theme.js';
+import { UploadZone } from './js/components/upload-zone.js';
+import { AIProvider } from './js/services/ai-provider.js';
+import { CreditService } from './js/services/credit-service.js';
+import { Notifications } from './js/components/notifications.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  Notifications.init();
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', () => ThemeManager.toggle()));
+
+  // Country selector
+  document.querySelectorAll('.country-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
+
+  // BG swatch
+  document.querySelectorAll('.passport-bg-swatch').forEach(sw => {
+    sw.addEventListener('click', () => {
+      document.querySelectorAll('.passport-bg-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+    });
+  });
+
+  // Upload zone (wrapping the whole canvas area)
+  const canvasWrap = document.getElementById('passport-canvas-wrap');
+  let uploadedFile = null;
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file'; fileInput.accept = 'image/jpeg,image/png,image/webp'; fileInput.style.display = 'none';
+  document.body.appendChild(fileInput);
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) handleFile(fileInput.files[0]); });
+
+  document.getElementById('passport-upload-btn')?.addEventListener('click', () => fileInput.click());
+
+  function handleFile(file) {
+    uploadedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image(); img.onload = () => {
+        const canvas = document.getElementById('passport-canvas');
+        canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        canvas.style.display = 'block';
+        document.getElementById('passport-upload-overlay').style.display = 'none';
+        document.getElementById('passport-process-btn').disabled = false;
+        Notifications.info('Photo Uploaded', 'Click "Generate Passport Photo" to process.');
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  document.getElementById('passport-process-btn')?.addEventListener('click', async () => {
+    if (!uploadedFile) { fileInput.click(); return; }
+    if (!CreditService.canAfford('passportPhoto')) { Notifications.error('Insufficient Credits', 'You need 2 credits.'); return; }
+    Notifications.info('Processing', 'Generating passport photo...');
+    try {
+      await AIProvider.demoRemoveBackground(uploadedFile, () => {});
+      CreditService.deduct('passportPhoto');
+      document.getElementById('passport-download-btn').disabled = false;
+      document.getElementById('passport-print-btn').disabled = false;
+      Notifications.success('Done!', 'Passport photo ready to download.');
+    } catch(err) { Notifications.error('Failed', err.message); }
+  });
+});
+</script>
+</body>
+</html>

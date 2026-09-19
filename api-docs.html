@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>API Documentation – AntryGravity</title>
+  <meta name="description" content="Integrate AntryGravity's AI background removal API into your application. Full REST API documentation."/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <style>
+    .page-wrap { padding-top: var(--nav-height); }
+    .docs-layout { display: grid; grid-template-columns: 260px 1fr; min-height: calc(100vh - var(--nav-height)); }
+    .docs-sidebar {
+      position: sticky; top: var(--nav-height); height: calc(100vh - var(--nav-height));
+      overflow-y: auto; border-right: 1px solid var(--border-subtle);
+      background: var(--bg-sidebar); padding: var(--space-6) 0;
+    }
+    .docs-nav-section { padding: var(--space-2) var(--space-5); font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+    .docs-nav-link { display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-5); font-size: var(--text-sm); color: var(--text-muted); text-decoration: none; transition: all var(--transition-fast); border-left: 2px solid transparent; }
+    .docs-nav-link:hover { color: var(--text-secondary); background: var(--bg-glass); }
+    .docs-nav-link.active { color: var(--brand-blue-400); border-left-color: var(--brand-blue-400); background: rgba(37,99,235,0.06); }
+    .docs-content { padding: var(--space-10) var(--space-12); max-width: 900px; }
+    .docs-section { margin-bottom: var(--space-16); scroll-margin-top: calc(var(--nav-height) + var(--space-4)); }
+    .docs-section-title { font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 800; color: var(--text-primary); margin-bottom: var(--space-4); letter-spacing: -0.02em; }
+    .docs-subtitle { font-size: var(--text-lg); font-weight: 700; color: var(--text-primary); margin-bottom: var(--space-3); margin-top: var(--space-6); }
+    .docs-p { font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.75; margin-bottom: var(--space-4); }
+    .method-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: var(--radius-md); font-size: var(--text-xs); font-weight: 700; font-family: var(--font-mono); }
+    .method-post { background: rgba(16,185,129,0.12); color: var(--color-success); border: 1px solid rgba(16,185,129,0.2); }
+    .method-get { background: rgba(37,99,235,0.12); color: var(--brand-blue-400); border: 1px solid rgba(37,99,235,0.2); }
+    .method-delete { background: rgba(239,68,68,0.12); color: var(--color-error); border: 1px solid rgba(239,68,68,0.2); }
+    .endpoint-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: var(--space-5); }
+    .endpoint-header { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); cursor: pointer; user-select: none; }
+    .endpoint-path { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--text-primary); font-weight: 600; }
+    .endpoint-desc { font-size: var(--text-xs); color: var(--text-muted); margin-left: auto; }
+    .endpoint-body { border-top: 1px solid var(--border-subtle); padding: var(--space-5); display: none; }
+    .endpoint-card.open .endpoint-body { display: block; }
+    .param-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+    .param-table th { text-align: left; padding: var(--space-2) var(--space-3); font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); }
+    .param-table td { padding: var(--space-2) var(--space-3); color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); }
+    .param-table tr:last-child td { border-bottom: none; }
+    .param-name { font-family: var(--font-mono); color: var(--brand-blue-300); font-size: var(--text-xs); }
+    .param-type { font-family: var(--font-mono); color: var(--brand-purple-400); font-size: var(--text-xs); }
+    .param-required { color: var(--color-error); font-size: var(--text-xs); font-weight: 700; }
+    .code-block { background: var(--bg-sidebar); border: 1px solid var(--border-subtle); border-radius: var(--radius-xl); padding: var(--space-5); font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.8; overflow-x: auto; position: relative; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-5); background: var(--bg-glass); border-bottom: 1px solid var(--border-subtle); font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-mono); }
+    .copy-btn { cursor: pointer; font-size: var(--text-xs); color: var(--brand-blue-400); background: none; border: none; font-family: var(--font-mono); }
+    .kw { color: var(--brand-purple-400); } .str { color: var(--color-success); } .cm { color: var(--text-muted); } .fn { color: var(--brand-blue-300); } .num { color: #fb923c; }
+    @media (max-width: 768px) { .docs-layout { grid-template-columns: 1fr; } .docs-sidebar { display: none; } .docs-content { padding: var(--space-6); } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">API Docs</span></div>
+    </a>
+    <div style="flex:1"></div>
+    <div class="nav-right">
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">Dashboard</a>
+      <a href="pricing.html" class="btn btn-primary btn-sm">Get API Key</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="docs-layout">
+    <!-- Sidebar Nav -->
+    <nav class="docs-sidebar" aria-label="API documentation navigation">
+      <div class="docs-nav-section">Getting Started</div>
+      <a href="#overview" class="docs-nav-link active">Overview</a>
+      <a href="#authentication" class="docs-nav-link">Authentication</a>
+      <a href="#rate-limits" class="docs-nav-link">Rate Limits</a>
+      <a href="#errors" class="docs-nav-link">Error Handling</a>
+      <div class="docs-nav-section">Core API</div>
+      <a href="#remove-background" class="docs-nav-link">Remove Background</a>
+      <a href="#check-status" class="docs-nav-link">Check Job Status</a>
+      <a href="#upscale" class="docs-nav-link">Upscale Image</a>
+      <a href="#generate-bg" class="docs-nav-link">Generate Background</a>
+      <div class="docs-nav-section">Management</div>
+      <a href="#api-keys" class="docs-nav-link">API Keys</a>
+      <a href="#credits" class="docs-nav-link">Credit Balance</a>
+      <a href="#webhooks" class="docs-nav-link">Webhooks</a>
+      <div class="docs-nav-section">SDKs</div>
+      <a href="#sdk-js" class="docs-nav-link">JavaScript SDK</a>
+      <a href="#sdk-python" class="docs-nav-link">Python SDK</a>
+      <a href="#sdk-php" class="docs-nav-link">PHP SDK</a>
+      <div class="docs-nav-section">Resources</div>
+      <a href="pricing.html" class="docs-nav-link">Pricing</a>
+      <a href="dashboard.html" class="docs-nav-link">Dashboard</a>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="docs-content">
+
+      <!-- Overview -->
+      <section class="docs-section" id="overview">
+        <div style="margin-bottom:var(--space-6);">
+          <div class="section-label" style="justify-content:flex-start;">REST API v1</div>
+          <h1 class="docs-section-title">AntryGravity API</h1>
+          <p class="docs-p">The AntryGravity API gives you programmatic access to our AI background removal, image upscaling, and background generation capabilities. Build powerful image processing pipelines directly into your applications.</p>
+          <div class="card" style="background: rgba(37,99,235,0.06); border-color: var(--border-accent);">
+            <div style="display:flex; align-items:center; gap:var(--space-3);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--brand-blue-400);flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <div>
+                <div style="font-weight:700;color:var(--text-primary);font-size:var(--text-sm);">API Key Required</div>
+                <div style="font-size:var(--text-xs);color:var(--text-muted);">API access requires a Business or Enterprise plan. <a href="pricing.html" style="color:var(--brand-blue-400);">View plans →</a></div>
+              </div>
+              <a href="dashboard.html" class="btn btn-primary btn-sm" style="margin-left:auto;">Get API Key</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="docs-subtitle">Base URL</div>
+        <div class="code-block">
+          <span class="str">https://api.antrygravity.com/v1</span>
+        </div>
+
+        <div class="docs-subtitle">Quick Example</div>
+        <div style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border-subtle); margin-top:var(--space-3);">
+          <div class="code-header">
+            <span>shell</span>
+            <button class="copy-btn" onclick="navigator.clipboard.writeText(this.closest('.endpoint-body,div').querySelector('pre').textContent)">Copy</button>
+          </div>
+          <pre class="code-block" style="border-radius:0; border:none; margin:0;"><span class="cm"># Remove background from an image</span>
+curl -X POST <span class="str">'https://api.antrygravity.com/v1/remove-background'</span> \
+  -H <span class="str">'Authorization: Bearer YOUR_API_KEY'</span> \
+  -F <span class="str">'image=@/path/to/your/image.jpg'</span> \
+  -o result.png</pre>
+        </div>
+      </section>
+
+      <!-- Authentication -->
+      <section class="docs-section" id="authentication">
+        <h2 class="docs-section-title">Authentication</h2>
+        <p class="docs-p">All API requests must be authenticated using your API key as a Bearer token in the Authorization header. Never expose your API key in client-side code.</p>
+        <div style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border-subtle);">
+          <div class="code-header"><span>HTTP Header</span></div>
+          <pre class="code-block" style="border-radius:0;border:none;margin:0;">Authorization: Bearer <span class="str">ag_live_xxxxxxxxxxxxxxxxxxxxxxxx</span></pre>
+        </div>
+        <div class="docs-subtitle">Generating API Keys</div>
+        <p class="docs-p">Create and manage API keys from your <a href="dashboard.html" style="color:var(--brand-blue-400);">dashboard</a>. You can create multiple keys for different applications and revoke them at any time. Keys are prefixed with <code style="font-family:var(--font-mono);color:var(--brand-blue-300);">ag_live_</code> for production and <code style="font-family:var(--font-mono);color:var(--brand-blue-300);">ag_test_</code> for testing.</p>
+      </section>
+
+      <!-- Remove Background -->
+      <section class="docs-section" id="remove-background">
+        <h2 class="docs-section-title">Remove Background</h2>
+        <div class="endpoint-card open">
+          <div class="endpoint-header" onclick="this.closest('.endpoint-card').classList.toggle('open')">
+            <span class="method-badge method-post">POST</span>
+            <span class="endpoint-path">/v1/remove-background</span>
+            <span class="endpoint-desc">Remove background from an image</span>
+          </div>
+          <div class="endpoint-body">
+            <div class="docs-subtitle" style="margin-top:0;">Request Parameters</div>
+            <table class="param-table" aria-label="Remove background parameters">
+              <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="param-name">image</td><td class="param-type">file</td><td class="param-required">Required</td><td>Image file (JPG, PNG, WEBP, max 25MB)</td></tr>
+                <tr><td class="param-name">output_format</td><td class="param-type">string</td><td>Optional</td><td><code>png</code> (default), <code>webp</code></td></tr>
+                <tr><td class="param-name">quality</td><td class="param-type">integer</td><td>Optional</td><td>Output quality 1-100 (default: 90)</td></tr>
+                <tr><td class="param-name">refine_edges</td><td class="param-type">boolean</td><td>Optional</td><td>Enable fine edge refine (costs +1 credit)</td></tr>
+                <tr><td class="param-name">webhook_url</td><td class="param-type">string</td><td>Optional</td><td>URL to receive async callback</td></tr>
+              </tbody>
+            </table>
+            <div class="docs-subtitle">Example Response</div>
+            <pre class="code-block">{
+  <span class="kw">"job_id"</span>: <span class="str">"job_abc123"</span>,
+  <span class="kw">"status"</span>: <span class="str">"completed"</span>,
+  <span class="kw">"credits_used"</span>: <span class="num">1</span>,
+  <span class="kw">"output_url"</span>: <span class="str">"https://api.antrygravity.com/v1/results/job_abc123.png"</span>,
+  <span class="kw">"expires_at"</span>: <span class="str">"2026-09-20T23:59:59Z"</span>
+}</pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Upscale -->
+      <section class="docs-section" id="upscale">
+        <h2 class="docs-section-title">Upscale Image</h2>
+        <div class="endpoint-card">
+          <div class="endpoint-header" onclick="this.closest('.endpoint-card').classList.toggle('open')">
+            <span class="method-badge method-post">POST</span>
+            <span class="endpoint-path">/v1/upscale</span>
+            <span class="endpoint-desc">Upscale image up to 8K</span>
+          </div>
+          <div class="endpoint-body">
+            <table class="param-table">
+              <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td class="param-name">image</td><td class="param-type">file</td><td class="param-required">Required</td><td>Image file to upscale</td></tr>
+                <tr><td class="param-name">scale</td><td class="param-type">string</td><td>Optional</td><td><code>2k</code>, <code>4k</code>, <code>8k</code> (default: <code>2k</code>)</td></tr>
+                <tr><td class="param-name">denoise</td><td class="param-type">integer</td><td>Optional</td><td>Noise reduction 0-100 (default: 30)</td></tr>
+                <tr><td class="param-name">sharpness</td><td class="param-type">integer</td><td>Optional</td><td>Sharpness 0-100 (default: 70)</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rate Limits -->
+      <section class="docs-section" id="rate-limits">
+        <h2 class="docs-section-title">Rate Limits</h2>
+        <p class="docs-p">Rate limits are applied per API key. If you exceed the limit, you'll receive a <code>429 Too Many Requests</code> response with a <code>Retry-After</code> header.</p>
+        <div class="card" style="overflow:hidden;">
+          <table class="data-table" aria-label="Rate limits table">
+            <thead><tr><th>Plan</th><th>Requests / Minute</th><th>Concurrent Jobs</th><th>Max File Size</th></tr></thead>
+            <tbody>
+              <tr><td>Free</td><td>–</td><td>–</td><td>–</td></tr>
+              <tr><td>Pro</td><td>20 / min</td><td>2</td><td>25MB</td></tr>
+              <tr><td>Business</td><td>60 / min</td><td>10</td><td>50MB</td></tr>
+              <tr><td>Enterprise</td><td>Custom</td><td>Custom</td><td>Custom</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Error Handling -->
+      <section class="docs-section" id="errors">
+        <h2 class="docs-section-title">Error Handling</h2>
+        <p class="docs-p">All errors return a JSON object with an <code>error</code> field. HTTP status codes follow standard REST conventions.</p>
+        <pre class="code-block">{
+  <span class="kw">"error"</span>: {
+    <span class="kw">"code"</span>: <span class="str">"insufficient_credits"</span>,
+    <span class="kw">"message"</span>: <span class="str">"You don't have enough credits for this operation."</span>,
+    <span class="kw">"status"</span>: <span class="num">402</span>
+  }
+}</pre>
+        <div class="docs-subtitle">Common Error Codes</div>
+        <table class="param-table" style="margin-top:var(--space-3);">
+          <thead><tr><th>Status</th><th>Code</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-danger">401</span></td><td class="param-name">unauthorized</td><td>Invalid or missing API key</td></tr>
+            <tr><td><span class="badge badge-warning">402</span></td><td class="param-name">insufficient_credits</td><td>Not enough credits</td></tr>
+            <tr><td><span class="badge badge-warning">413</span></td><td class="param-name">file_too_large</td><td>File exceeds maximum size</td></tr>
+            <tr><td><span class="badge badge-warning">422</span></td><td class="param-name">invalid_image</td><td>Unsupported or corrupt image</td></tr>
+            <tr><td><span class="badge badge-warning">429</span></td><td class="param-name">rate_limit_exceeded</td><td>Too many requests</td></tr>
+            <tr><td><span class="badge badge-danger">500</span></td><td class="param-name">server_error</td><td>Internal server error</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- JS SDK -->
+      <section class="docs-section" id="sdk-js">
+        <h2 class="docs-section-title">JavaScript SDK</h2>
+        <div style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border-subtle);">
+          <div class="code-header"><span>shell — Install</span></div>
+          <pre class="code-block" style="border-radius:0;border:none;margin:0;">npm install @antrygravity/sdk</pre>
+        </div>
+        <div style="border-radius:var(--radius-xl); overflow:hidden; border:1px solid var(--border-subtle); margin-top:var(--space-4);">
+          <div class="code-header"><span>JavaScript — Usage</span></div>
+          <pre class="code-block" style="border-radius:0;border:none;margin:0;"><span class="cm">// ⚠️ Store your API key server-side, never in browser code</span>
+<span class="kw">const</span> { AntryGravity } = <span class="fn">require</span>(<span class="str">'@antrygravity/sdk'</span>);
+
+<span class="kw">const</span> client = <span class="kw">new</span> <span class="fn">AntryGravity</span>({
+  apiKey: process.env.<span class="num">ANTRYGRAVITY_API_KEY</span>,
+});
+
+<span class="kw">const</span> result = <span class="kw">await</span> client.<span class="fn">removeBackground</span>({
+  image: fs.<span class="fn">createReadStream</span>(<span class="str">'./photo.jpg'</span>),
+  outputFormat: <span class="str">'png'</span>,
+  refineEdges: <span class="kw">true</span>,
+});
+
+console.<span class="fn">log</span>(result.outputUrl); <span class="cm">// Download URL</span></pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<script type="module">
+import { ThemeManager } from './js/core/theme.js';
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', () => ThemeManager.toggle()));
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
+
+  // Active section tracking
+  const sections = document.querySelectorAll('.docs-section');
+  const navLinks = document.querySelectorAll('.docs-nav-link');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector(`.docs-nav-link[href="#${entry.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+  sections.forEach(s => observer.observe(s));
+
+  // Endpoint accordion
+  document.querySelectorAll('.endpoint-header').forEach(h => h.addEventListener('click', () => h.closest('.endpoint-card').classList.toggle('open')));
+});
+</script>
+</body>
+</html>

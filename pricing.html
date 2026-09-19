@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pricing – AntryGravity AI Image Studio</title>
+  <meta name="description" content="Choose the right AntryGravity plan for you. Free, Pro, Business, and Enterprise plans with flexible credits and features."/>
+  <link rel="canonical" href="https://antrygravity.com/pricing"/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <style>
+    .page-wrap { padding-top: var(--nav-height); }
+
+    .toggle-billing {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      justify-content: center;
+      margin-bottom: var(--space-12);
+    }
+    .billing-label { font-size: var(--text-sm); font-weight: 600; color: var(--text-secondary); }
+    .billing-label.active { color: var(--text-primary); }
+    .save-badge {
+      background: var(--color-success-bg);
+      color: var(--color-success);
+      border: 1px solid rgba(16,185,129,0.2);
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 700;
+    }
+
+    .pricing-grid-main {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-5);
+      align-items: start;
+    }
+
+    .compare-table { margin-top: var(--space-24); }
+    .compare-section-header {
+      background: var(--bg-glass);
+      padding: var(--space-4) var(--space-5);
+      font-weight: 700;
+      color: var(--text-primary);
+      font-size: var(--text-sm);
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .faq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-8);
+    }
+
+    @media (max-width: 1024px) { .pricing-grid-main { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px)  { .pricing-grid-main { grid-template-columns: 1fr; } .faq-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">AI Image Studio</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="tool.html" class="nav-link">Tools</a></li>
+      <li><a href="pricing.html" class="nav-link active">Pricing</a></li>
+      <li><a href="api-docs.html" class="nav-link">API</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+      </button>
+      <a href="dashboard.html" class="btn btn-secondary btn-sm">Sign In</a>
+      <a href="tool.html" class="btn btn-primary btn-sm">Get Started Free</a>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobile-menu">
+  <div style="padding:var(--space-4); display:flex; flex-direction:column; gap:var(--space-4);">
+    <a href="index.html" class="mobile-nav-link">Home</a>
+    <a href="tool.html" class="mobile-nav-link">Tools</a>
+    <a href="pricing.html" class="mobile-nav-link">Pricing</a>
+    <a href="api-docs.html" class="mobile-nav-link">API</a>
+    <div style="display:flex;gap:var(--space-3);margin-top:var(--space-4);">
+      <a href="dashboard.html" class="btn btn-secondary" style="flex:1">Sign In</a>
+      <a href="tool.html" class="btn btn-primary" style="flex:1">Get Started</a>
+    </div>
+  </div>
+</div>
+
+<div class="page-wrap">
+  <!-- Hero -->
+  <section class="section" style="padding-bottom:0;">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-label">Pricing</div>
+        <h1 class="section-title">Simple, Transparent Pricing</h1>
+        <p class="section-desc">Start free. Upgrade when you're ready. All plans include core background removal and image editing tools.</p>
+      </div>
+
+      <!-- Billing toggle -->
+      <div class="toggle-billing" role="group" aria-label="Billing period">
+        <span class="billing-label active" id="monthly-label">Monthly</span>
+        <label class="toggle" for="billing-toggle" style="width:52px;height:28px;">
+          <input type="checkbox" id="billing-toggle" aria-label="Switch to annual billing"/>
+          <div class="toggle-track"></div>
+        </label>
+        <span class="billing-label" id="annual-label">Annual <span class="save-badge">Save 20%</span></span>
+      </div>
+
+      <!-- Pricing Cards -->
+      <div class="pricing-grid-main reveal">
+        <!-- Free -->
+        <div class="pricing-card hover-lift">
+          <div class="pricing-plan-name">Free</div>
+          <div class="pricing-price"><sup>$</sup>0</div>
+          <div class="pricing-period">/ month · Forever free</div>
+          <div class="pricing-plan-desc">Perfect for individuals trying AI background removal for the first time.</div>
+          <ul class="pricing-features" aria-label="Free plan features">
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>5 credits/month</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Standard resolution</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Watermarked exports</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Basic editing tools</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Community support</li>
+          </ul>
+          <a href="tool.html" class="btn btn-secondary w-full" id="get-free">Get Started Free</a>
+        </div>
+
+        <!-- Pro (featured) -->
+        <div class="pricing-card featured hover-lift">
+          <div class="pricing-popular-badge">Most Popular</div>
+          <div class="pricing-plan-name">Pro</div>
+          <div class="pricing-price"><sup>$</sup><span id="pro-price">9</span><span style="font-size:var(--text-2xl)" id="pro-cents">.99</span></div>
+          <div class="pricing-period" id="pro-period">/ month · billed monthly</div>
+          <div class="pricing-plan-desc">For professionals who need more power, no watermarks, and advanced tools.</div>
+          <ul class="pricing-features" aria-label="Pro plan features">
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>500 credits/month</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>HD / 4K resolution</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>No watermarks</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Batch processing</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Product &amp; Passport Studio</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>AI Background Generator</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Priority email support</li>
+          </ul>
+          <a href="dashboard.html" class="btn w-full" style="background:white;color:var(--brand-navy-900);font-weight:700;" id="get-pro">Get Pro</a>
+        </div>
+
+        <!-- Business -->
+        <div class="pricing-card hover-lift">
+          <div class="pricing-plan-name">Business</div>
+          <div class="pricing-price"><sup>$</sup><span id="biz-price">29</span><span style="font-size:var(--text-2xl)" id="biz-cents">.99</span></div>
+          <div class="pricing-period" id="biz-period">/ month · billed monthly</div>
+          <div class="pricing-plan-desc">For growing teams with high-volume needs, API access, and team features.</div>
+          <ul class="pricing-features" aria-label="Business plan features">
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>2,000 credits/month</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>8K resolution export</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Full API access</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Team workspace (5 seats)</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Priority processing queue</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>All Pro features</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Dedicated account manager</li>
+          </ul>
+          <a href="dashboard.html" class="btn btn-primary w-full" id="get-business">Get Business</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="pricing-card hover-lift">
+          <div class="pricing-plan-name">Enterprise</div>
+          <div class="pricing-price" style="font-size:var(--text-4xl)">Custom</div>
+          <div class="pricing-period">Contact us for pricing</div>
+          <div class="pricing-plan-desc">For large organizations with custom volumes, SLA, and dedicated infrastructure.</div>
+          <ul class="pricing-features" aria-label="Enterprise plan features">
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Custom credit volume</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Custom API rate limits</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Unlimited team seats</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Custom branding</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>SLA guarantee</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Dedicated support team</li>
+            <li class="pricing-feature"><span class="pricing-feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></span>Custom AI provider setup</li>
+          </ul>
+          <a href="#contact-sales" class="btn btn-outline w-full" id="get-enterprise">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Credit cost breakdown -->
+  <section class="section" style="padding-top: var(--space-16);">
+    <div class="container" style="max-width: 900px;">
+      <div class="section-header reveal">
+        <div class="section-label">Credit System</div>
+        <h2 class="section-title">How Credits Work</h2>
+        <p class="section-desc">Every AI operation costs credits. Credits refresh monthly with your plan.</p>
+      </div>
+      <div class="card reveal" style="overflow: hidden;">
+        <div class="data-table-wrap">
+          <table class="data-table" aria-label="Credit costs table">
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Credits Used</th>
+                <th>Free Plan</th>
+                <th>Pro Plan</th>
+                <th>Business Plan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Background Removal</td><td><span class="badge badge-brand">1 credit</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>AI Background Generate</td><td><span class="badge badge-brand">3 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Image Upscale 2K</td><td><span class="badge badge-brand">2 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Image Upscale 4K</td><td><span class="badge badge-brand">4 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Image Upscale 8K</td><td><span class="badge badge-brand">8 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Passport Photo</td><td><span class="badge badge-brand">2 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Product Studio Export</td><td><span class="badge badge-brand">2 credits</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Batch Processing (per image)</td><td><span class="badge badge-brand">1 credit</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+              <tr><td>Fine Edge Refinement</td><td><span class="badge badge-brand">1 credit</span></td><td><span class="badge badge-muted">✗</span></td><td><span class="badge badge-success">✓</span></td><td><span class="badge badge-success">✓</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:var(--space-4) var(--space-6); background:var(--bg-glass); border-top:1px solid var(--border-subtle); font-size:var(--text-xs); color:var(--text-muted);">
+          * Credit costs are configurable by administrators and may change. Failed jobs are eligible for credit refunds based on system policy.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" style="background:var(--bg-surface); border-top:1px solid var(--border-subtle);">
+    <div class="container" style="max-width: 900px;">
+      <div class="section-header reveal">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Pricing Questions</h2>
+      </div>
+      <div class="faq-grid reveal">
+        <div>
+          <div class="faq-item open">
+            <div class="faq-question" tabindex="0" role="button">Can I change my plan anytime? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Yes! You can upgrade or downgrade your plan at any time. Upgrades take effect immediately. Downgrades take effect at the next billing cycle.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" tabindex="0" role="button">Do credits roll over? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Credits reset monthly on all plans. Unused credits do not roll over. You can purchase additional credits at any time if you run out.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" tabindex="0" role="button">Is there a free trial for Pro? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">The Free plan lets you try all core features. Pro features can be evaluated during a 7-day trial when you first upgrade — contact support to activate a trial.</div></div>
+          </div>
+        </div>
+        <div>
+          <div class="faq-item">
+            <div class="faq-question" tabindex="0" role="button">What payment methods do you accept? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">We accept all major credit/debit cards and PayPal through our secure payment processor. We never store your card details directly.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" tabindex="0" role="button">Are refunds available? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Subscriptions can be cancelled at any time. Refunds for subscription charges are available within 14 days of purchase if you haven't used your credits. See our Refund Policy for full details.</div></div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-question" tabindex="0" role="button">How does Enterprise pricing work? <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div></div>
+            <div class="faq-answer"><div class="faq-answer-inner">Enterprise pricing is customized based on your volume, team size, and feature requirements. Contact our sales team for a personalized quote and demo.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="section-sm">
+    <div class="container">
+      <div class="cta-section reveal">
+        <h2 class="cta-title">Ready to get started?</h2>
+        <p class="cta-desc">Join 50,000+ creators. Start free — no credit card required.</p>
+        <div style="display:flex;gap:var(--space-4);justify-content:center;flex-wrap:wrap;">
+          <a href="tool.html" class="btn btn-xl" style="background:white;color:var(--brand-navy-900);font-weight:800;">Start for Free</a>
+          <a href="#contact-sales" class="btn btn-xl btn-secondary" id="contact-sales">Contact Sales</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding-top:var(--space-8); border-top:1px solid var(--border-subtle); flex-wrap:wrap; gap:var(--space-4);">
+        <a href="index.html" class="logo"><div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="logo-text"><span class="logo-name">AntryGravity</span></div></a>
+        <p class="footer-copy">© 2026 AntryGravity. All rights reserved.</p>
+        <nav class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Refund Policy</a></nav>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<script type="module">
+import { ThemeManager } from './js/core/theme.js';
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  document.querySelectorAll('[data-theme-toggle]').forEach(b => b.addEventListener('click', () => ThemeManager.toggle()));
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  hamburger?.addEventListener('click', () => { hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); });
+
+  // Billing toggle
+  const billingToggle = document.getElementById('billing-toggle');
+  const monthlyLabel  = document.getElementById('monthly-label');
+  const annualLabel   = document.getElementById('annual-label');
+  billingToggle?.addEventListener('change', () => {
+    const annual = billingToggle.checked;
+    monthlyLabel.classList.toggle('active', !annual);
+    annualLabel.classList.toggle('active', annual);
+    // Apply 20% discount for annual
+    const proPrice = document.getElementById('pro-price');
+    const bizPrice = document.getElementById('biz-price');
+    const proCents = document.getElementById('pro-cents');
+    const bizCents = document.getElementById('biz-cents');
+    const proPeriod = document.getElementById('pro-period');
+    const bizPeriod = document.getElementById('biz-period');
+    if (annual) {
+      proPrice.textContent = '7'; proCents.textContent = '.99'; proPeriod.textContent = '/ month · billed annually ($95.88/yr)';
+      bizPrice.textContent = '23'; bizCents.textContent = '.99'; bizPeriod.textContent = '/ month · billed annually ($287.88/yr)';
+    } else {
+      proPrice.textContent = '9'; proCents.textContent = '.99'; proPeriod.textContent = '/ month · billed monthly';
+      bizPrice.textContent = '29'; bizCents.textContent = '.99'; bizPeriod.textContent = '/ month · billed monthly';
+    }
+  });
+
+  // FAQ
+  document.querySelectorAll('.faq-question').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const open = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!open) item.classList.add('open');
+    });
+  });
+
+  // Scroll reveal
+  const revealEls = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } }), { threshold: 0.1 });
+  revealEls.forEach(el => observer.observe(el));
+});
+</script>
+</body>
+</html>

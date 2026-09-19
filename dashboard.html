@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard – AntryGravity AI Image Studio</title>
+  <meta name="description" content="Manage your AI image projects, credits, and settings in your AntryGravity dashboard."/>
+  <meta name="robots" content="noindex"/>
+  <meta name="theme-color" content="#0a0f1e"/>
+  <link rel="stylesheet" href="css/design-tokens.css"/>
+  <link rel="stylesheet" href="css/components.css"/>
+  <link rel="stylesheet" href="css/animations.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <style>
+    /* Dashboard-specific inline styles */
+    .page-title { font-family: var(--font-display); font-size: var(--text-3xl); font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em; }
+    .section-title-sm { font-size: var(--text-lg); font-weight: 700; color: var(--text-primary); }
+
+    /* Upload quick card */
+    .quick-upload-zone {
+      border: 2px dashed var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-3);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-normal);
+    }
+    .quick-upload-zone:hover {
+      border-color: var(--brand-blue-500);
+      background: rgba(37,99,235,0.04);
+    }
+    .quick-upload-icon {
+      width: 52px; height: 52px;
+      border-radius: var(--radius-xl);
+      background: var(--gradient-brand-soft);
+      border: 1px solid var(--border-accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .quick-upload-icon svg { width: 24px; height: 24px; color: var(--brand-blue-400); }
+
+    /* Activity feed */
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .activity-icon svg { width: 16px; height: 16px; }
+    .activity-text { flex: 1; font-size: var(--text-sm); color: var(--text-secondary); line-height: 1.4; }
+    .activity-time { font-size: var(--text-xs); color: var(--text-muted); white-space: nowrap; }
+
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 45;
+      backdrop-filter: blur(4px);
+    }
+    .sidebar-overlay.open { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- ─── NAVBAR ──────────────────────────────────────────── -->
+<nav class="navbar" id="navbar" style="z-index: var(--z-nav);">
+  <div class="navbar-inner">
+    <a href="index.html" class="logo">
+      <div class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div>
+      <div class="logo-text"><span class="logo-name">AntryGravity</span><span class="logo-tagline">AI Image Studio</span></div>
+    </a>
+    <div style="flex:1"></div>
+    <div class="nav-right">
+      <!-- Notification Bell -->
+      <button class="notif-btn" aria-label="Notifications" id="notif-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="notif-dot" aria-hidden="true"></div>
+      </button>
+      <button class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/></svg>
+      </button>
+      <!-- User Avatar -->
+      <div style="display:flex; align-items:center; gap:var(--space-2); cursor:pointer;" id="user-menu-btn" aria-label="User menu" aria-haspopup="true">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient-brand);display:flex;align-items:center;justify-content:center;font-size:var(--text-sm);font-weight:800;color:white;" aria-hidden="true" id="user-avatar">R</div>
+        <span style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);" id="user-display-name">User</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" style="color:var(--text-muted)"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <!-- Mobile sidebar toggle -->
+      <button class="hamburger" id="sidebar-toggle" aria-label="Open sidebar" style="display:none;">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Sidebar mobile overlay -->
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<div class="dashboard-page">
+  <!-- ─── SIDEBAR ─────────────────────────────────────────── -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Dashboard navigation">
+    <div class="sidebar-header">
+      <div class="sidebar-search" role="search">
+        <svg class="sidebar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="sidebar-search-input" type="search" placeholder="Search projects..." aria-label="Search projects" id="project-search"/>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a href="dashboard.html" class="sidebar-link active" aria-current="page">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <span class="sidebar-link-label">Dashboard</span>
+      </a>
+      <a href="tool.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+        <span class="sidebar-link-label">Create New</span>
+      </a>
+
+      <div class="sidebar-section-label">Tools</div>
+      <a href="tool.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+        <span class="sidebar-link-label">My Projects</span>
+      </a>
+      <a href="batch.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+        <span class="sidebar-link-label">Batch Processing</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+        <span class="sidebar-link-label">AI Backgrounds</span>
+      </a>
+      <a href="upscaler.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+        <span class="sidebar-link-label">Image Upscaler</span>
+      </a>
+      <a href="product-studio.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+        <span class="sidebar-link-label">Product Studio</span>
+      </a>
+      <a href="passport-photo.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <span class="sidebar-link-label">Passport Photo</span>
+      </a>
+
+      <div class="sidebar-section-label">Account</div>
+      <a href="#" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <span class="sidebar-link-label">Downloads</span>
+      </a>
+      <a href="#" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <span class="sidebar-link-label">Credits</span>
+        <span class="sidebar-link-badge" id="credits-badge">245</span>
+      </a>
+      <a href="api-docs.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+        <span class="sidebar-link-label">API</span>
+      </a>
+      <a href="pricing.html" class="sidebar-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+        <span class="sidebar-link-label">Subscription</span>
+      </a>
+      <a href="#" class="sidebar-link" id="settings-link">
+        <div class="sidebar-link-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+        <span class="sidebar-link-label">Settings</span>
+      </a>
+    </nav>
+
+    <!-- Credits footer -->
+    <div class="sidebar-footer">
+      <div class="sidebar-credits">
+        <div class="sidebar-credits-header">
+          <span class="sidebar-credits-label">Available Credits</span>
+          <span class="badge badge-brand">Pro Plan</span>
+        </div>
+        <div class="sidebar-credits-amount" id="sidebar-credits">245</div>
+        <div class="sidebar-credits-bar"><div class="sidebar-credits-fill" style="width: 49%;" role="progressbar" aria-label="Credits used" aria-valuenow="49" aria-valuemin="0" aria-valuemax="100"></div></div>
+        <a href="pricing.html" class="btn btn-primary btn-sm w-full" id="buy-credits-btn">Buy Credits</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ─── DASHBOARD MAIN ──────────────────────────────────── -->
+  <main class="dashboard-main" id="dashboard-main" role="main">
+    <div class="dashboard-content">
+
+      <!-- Header -->
+      <div class="dashboard-header">
+        <div>
+          <h1 class="dashboard-greeting" id="dashboard-greeting">Welcome back!</h1>
+          <p class="dashboard-greeting-sub">Create amazing images with the power of AI</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:var(--space-3);">
+          <a href="tool.html" class="btn btn-primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M12 5v14M5 12h14"/></svg>
+            New Project
+          </a>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(37,99,235,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-blue-400)"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <div class="stat-value" id="stat-projects">48</div>
+          <div class="stat-label">Total Projects</div>
+          <div class="stat-change up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>+12% this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(124,58,237,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--brand-purple-400)"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div class="stat-value">156</div>
+          <div class="stat-label">Processed Images</div>
+          <div class="stat-change up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>+8% this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(16,185,129,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--color-success)"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div class="stat-value">235</div>
+          <div class="stat-label">Downloads</div>
+          <div class="stat-change up"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>+18% this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.12);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--color-warning)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="stat-value" id="stat-credits">245</div>
+          <div class="stat-label">Credits Remaining</div>
+          <div style="display:flex; align-items:center; gap:var(--space-2); margin-top:auto;">
+            <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:49%"></div></div>
+            <span style="font-size:var(--text-xs);color:var(--text-muted);">49%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two column: Upload + Quick tools + Plan card -->
+      <div class="dashboard-two-col" style="margin-bottom: var(--space-8);">
+        <!-- Left: Upload + Quick tools -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-5);">
+          <!-- Quick upload -->
+          <div class="dashboard-upload-card">
+            <div style="font-size:var(--text-base); font-weight:700; color:var(--text-primary);">Start a New Project</div>
+            <a href="tool.html" class="quick-upload-zone" aria-label="Upload image to remove background">
+              <div class="quick-upload-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              </div>
+              <div style="font-size:var(--text-sm); font-weight:700; color:var(--text-primary);">Drag &amp; Drop Your Image Here</div>
+              <div style="font-size:var(--text-xs); color:var(--text-muted);">or click to browse</div>
+              <div style="display:flex; gap:var(--space-2);">
+                <span class="format-tag">JPG</span><span class="format-tag">PNG</span><span class="format-tag">WEBP</span>
+                <span style="font-size:var(--text-xs);color:var(--text-muted);">Max 25MB</span>
+              </div>
+            </a>
+            <a href="tool.html" class="btn btn-primary w-full" id="dashboard-upload-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Upload Image
+            </a>
+          </div>
+
+          <!-- Quick tools grid -->
+          <div>
+            <div class="section-title-sm" style="margin-bottom:var(--space-4);">Quick Tools</div>
+            <div class="quick-tools-grid">
+              <a href="tool.html" class="quick-tool-btn" id="quick-bg-remover">
+                <div class="quick-tool-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                <div class="quick-tool-label">Background Remover</div>
+              </a>
+              <a href="tool.html#editor" class="quick-tool-btn" id="quick-bg-editor">
+                <div class="quick-tool-icon icon-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+                <div class="quick-tool-label">Background Editor</div>
+              </a>
+              <a href="upscaler.html" class="quick-tool-btn" id="quick-upscaler">
+                <div class="quick-tool-icon icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+                <div class="quick-tool-label">Image Upscaler</div>
+              </a>
+              <a href="product-studio.html" class="quick-tool-btn" id="quick-product">
+                <div class="quick-tool-icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/></svg></div>
+                <div class="quick-tool-label">Product Studio</div>
+              </a>
+              <a href="passport-photo.html" class="quick-tool-btn" id="quick-passport">
+                <div class="quick-tool-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <div class="quick-tool-label">Passport Photo</div>
+              </a>
+              <a href="batch.html" class="quick-tool-btn" id="quick-batch">
+                <div class="quick-tool-icon icon-pink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+                <div class="quick-tool-label">Batch Processing</div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Plan card + Activity -->
+        <div style="display:flex; flex-direction:column; gap:var(--space-5);">
+          <!-- Plan card -->
+          <div class="plan-card">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <div class="plan-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Current Plan
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" width="40" height="40"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div class="plan-name" id="user-plan">Pro Plan</div>
+            <div class="plan-expires">Valid until Dec 31, 2026</div>
+            <div style="display:flex; gap:var(--space-2); margin-top:var(--space-2);">
+              <a href="pricing.html" class="btn btn-sm" style="background:rgba(255,255,255,0.20);color:white;border-color:transparent;flex:1;justify-content:center;">Upgrade Plan</a>
+              <a href="pricing.html" class="btn btn-sm" style="background:rgba(255,255,255,0.10);color:white;border-color:transparent;flex:1;justify-content:center;">Buy Credits</a>
+            </div>
+          </div>
+
+          <!-- Recent activity -->
+          <div class="dashboard-upload-card">
+            <div class="section-title-sm">Recent Activity</div>
+            <div id="activity-feed">
+              <div class="activity-item">
+                <div class="activity-icon icon-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+                <div class="activity-text"><strong>Background removed</strong><br/>woman-portrait.png</div>
+                <div class="activity-time">2 hrs ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon icon-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="3" width="20" height="14" rx="2"/></svg></div>
+                <div class="activity-text"><strong>Product studio export</strong><br/>product1.png</div>
+                <div class="activity-time">4 hrs ago</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon icon-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg></div>
+                <div class="activity-text"><strong>Batch download complete</strong><br/>5 images processed</div>
+                <div class="activity-time">Yesterday</div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon icon-cyan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div>
+                <div class="activity-text"><strong>Image upscaled to 4K</strong><br/>shoe-product.jpg</div>
+                <div class="activity-time">2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Projects -->
+      <div style="margin-bottom: var(--space-8);">
+        <div class="recent-header">
+          <h2 class="section-title-sm">Recent Projects</h2>
+          <div style="display:flex; align-items:center; gap:var(--space-3);">
+            <!-- Filter chips -->
+            <div class="filter-bar" role="group" aria-label="Filter projects">
+              <button class="filter-chip active" data-filter="all">All</button>
+              <button class="filter-chip" data-filter="background-removal">BG Removed</button>
+              <button class="filter-chip" data-filter="upscale">Upscaled</button>
+              <button class="filter-chip" data-filter="product">Product</button>
+              <button class="filter-chip" data-filter="passport">Passport</button>
+            </div>
+            <a href="tool.html" class="btn btn-secondary btn-sm">View All →</a>
+          </div>
+        </div>
+
+        <div class="projects-grid" id="projects-grid">
+          <!-- Project cards — populated by JS or shown as demo -->
+          <div class="project-card hover-lift">
+            <div class="project-thumb" style="background:linear-gradient(135deg,#667eea,#764ba2);">
+              <span class="project-status-pill"><span class="badge badge-success">Done</span></span>
+            </div>
+            <div class="project-meta">
+              <div class="project-name">woman-portrait.png</div>
+              <div class="project-date">2 hours ago · Background Removed</div>
+            </div>
+          </div>
+          <div class="project-card hover-lift">
+            <div class="project-thumb" style="background:linear-gradient(135deg,#f093fb,#f5576c);">
+              <span class="project-status-pill"><span class="badge badge-success">Done</span></span>
+            </div>
+            <div class="project-meta">
+              <div class="project-name">product1.png</div>
+              <div class="project-date">4 hours ago · Product Studio</div>
+            </div>
+          </div>
+          <div class="project-card hover-lift">
+            <div class="project-thumb" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">
+              <span class="project-status-pill"><span class="badge badge-success">Done</span></span>
+            </div>
+            <div class="project-meta">
+              <div class="project-name">dog-portrait.jpg</div>
+              <div class="project-date">Yesterday · Background Removed</div>
+            </div>
+          </div>
+          <div class="project-card hover-lift">
+            <div class="project-thumb" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">
+              <span class="project-status-pill"><span class="badge badge-success">Done</span></span>
+            </div>
+            <div class="project-meta">
+              <div class="project-name">shoe-product.jpg</div>
+              <div class="project-date">2 days ago · Upscaled 4K</div>
+            </div>
+          </div>
+          <div class="project-card hover-lift">
+            <div class="project-thumb" style="background:linear-gradient(135deg,#fa709a,#fee140);">
+              <span class="project-status-pill"><span class="badge badge-warning">Processing</span></span>
+            </div>
+            <div class="project-meta">
+              <div class="project-name">batch-export-5.zip</div>
+              <div class="project-date">3 days ago · Batch Processing</div>
+            </div>
+          </div>
+          <div class="project-card hover-lift" style="border-style: dashed; display:flex; align-items:center; justify-content:center; min-height:120px; cursor:pointer;">
+            <a href="tool.html" style="display:flex; flex-direction:column; align-items:center; gap:var(--space-2); padding:var(--space-4); text-decoration:none;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--text-muted)"><path d="M12 5v14M5 12h14"/></svg>
+              <span style="font-size:var(--text-xs); color:var(--text-muted); font-weight:600;">New Project</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script type="module">
+import { ThemeManager } from './js/core/theme.js';
+import { Auth } from './js/core/auth.js';
+import { CreditService } from './js/services/credit-service.js';
+import { Notifications } from './js/components/notifications.js';
+
+document.addEventListener('DOMContentLoaded', () => {
+  ThemeManager.init();
+  Notifications.init();
+
+  // Theme toggles
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn =>
+    btn.addEventListener('click', () => ThemeManager.toggle()));
+
+  // Navbar scroll
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 20), { passive: true });
+
+  // Demo user state
+  const user = Auth.currentUser() || { name: 'User', plan: 'pro', credits: 245 };
+  const greeting = document.getElementById('dashboard-greeting');
+  if (greeting) greeting.textContent = `Welcome back, ${user.name.split(' ')[0]}!`;
+
+  // Avatar initials
+  const avatar = document.getElementById('user-avatar');
+  const dispName = document.getElementById('user-display-name');
+  if (avatar && user.name) avatar.textContent = user.name[0].toUpperCase();
+  if (dispName) dispName.textContent = user.name.split(' ')[0];
+
+  // Credits
+  const credits = CreditService.getBalance() || user.credits || 245;
+  document.querySelectorAll('#stat-credits, #sidebar-credits, #credits-badge, [data-credits-display]').forEach(el => {
+    el.textContent = credits;
+  });
+
+  // Mobile sidebar
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+  const toggleSidebar = () => {
+    const open = sidebar.classList.toggle('open');
+    if (sidebarOverlay) sidebarOverlay.classList.toggle('open', open);
+  };
+
+  sidebarToggle?.addEventListener('click', toggleSidebar);
+  sidebarOverlay?.addEventListener('click', toggleSidebar);
+
+  // Filter chips
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+    });
+  });
+});
+</script>
+</body>
+</html>
