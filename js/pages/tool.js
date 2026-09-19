@@ -17,6 +17,7 @@ let processedBlob = null;
 let historyStack  = [];
 let historyIndex  = -1;
 let zoom = 100;
+let currentBackgroundColor = '#ffffff';
 
 document.addEventListener('DOMContentLoaded', () => {
   ThemeManager.init();
@@ -242,7 +243,14 @@ function initEditorControls() {
     sw.addEventListener('click', () => {
       document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
       sw.classList.add('active');
+      currentBackgroundColor = sw.dataset.color || currentBackgroundColor;
+      applyBackground('solid');
     });
+  });
+
+  document.getElementById('custom-color')?.addEventListener('input', (event) => {
+    currentBackgroundColor = event.target.value;
+    applyBackground('solid');
   });
 
   // Shadow mode buttons
@@ -286,11 +294,33 @@ function undo() { Notifications.info('Undo', 'Step undone.'); }
 function redo() { Notifications.info('Redo', 'Step redone.'); }
 function resetEditor() { Notifications.info('Reset', 'Editor reset to original.'); }
 
-function applyBackground(type) {
+async function applyBackground(type) {
   const canvas = document.getElementById('editor-canvas');
-  if (!canvas) return;
+  if (!canvas || !processedBlob) return;
   const ctx = canvas.getContext('2d');
-  // In production this would composite layers
+
+  const image = new Image();
+  image.src = URL.createObjectURL(processedBlob);
+  await new Promise((resolve, reject) => {
+    image.onload = resolve;
+    image.onerror = reject;
+  });
+  canvas.width = image.naturalWidth;
+  canvas.height = image.naturalHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (type === 'solid') {
+    ctx.fillStyle = currentBackgroundColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else if (type === 'gradient') {
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  ctx.drawImage(image, 0, 0);
+  URL.revokeObjectURL(image.src);
   Notifications.info('Background Applied', `Background set to: ${type}`);
 }
 
