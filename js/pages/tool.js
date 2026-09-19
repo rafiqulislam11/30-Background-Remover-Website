@@ -410,14 +410,26 @@ function downloadResult() {
   const qualityMap = { low: 0.5, medium: 0.75, high: 0.9, maximum: 1.0 };
   const quality = qualityMap[qualityBtn?.dataset.quality || 'high'] || 0.9;
 
-  canvas.toBlob((blob) => {
+  const exportCanvas = format === 'jpg' ? document.createElement('canvas') : canvas;
+  if (exportCanvas !== canvas) {
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+    const exportContext = exportCanvas.getContext('2d');
+    exportContext.fillStyle = '#ffffff';
+    exportContext.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    exportContext.drawImage(canvas, 0, 0);
+  }
+
+  exportCanvas.toBlob((blob) => {
     if (!blob) { Notifications.error('Export Error', 'Could not generate image.'); return; }
     const url  = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href     = url;
     link.download = `antrygravity-result.${format}`;
+    link.style.display = 'none';
+    document.body.appendChild(link);
     link.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => { URL.revokeObjectURL(url); link.remove(); }, 1000);
     Notifications.success('Downloaded!', `Image saved as ${format.toUpperCase()}.`);
   }, mime, quality);
 }

@@ -474,8 +474,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `antrygravity-upscaled-${selectedScale}.${format}`; a.click();
-      URL.revokeObjectURL(url);
+      a.href = url; a.download = `antrygravity-upscaled-${selectedScale}.${format}`; a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
       Notifications.success('Downloaded!', `${selectedScale.toUpperCase()} image saved.`);
     }, mime, 0.92);
   });
