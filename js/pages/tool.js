@@ -137,8 +137,9 @@ async function startProcessing() {
     const resultUrl = URL.createObjectURL(
       processedBlob instanceof Blob ? processedBlob : currentFile
     );
-    renderImageToCanvas('editor-canvas', resultUrl);
-    renderImageToCanvas('before-canvas', originalDataUrl);
+    await renderImageToCanvas('editor-canvas', resultUrl);
+    await renderImageToCanvas('before-canvas', originalDataUrl);
+    captureHistory();
 
     Notifications.success('Done!', 'Background removed successfully.');
     updateCreditsDisplay();
@@ -159,16 +160,20 @@ async function startProcessing() {
 
 function renderImageToCanvas(canvasId, src) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return;
-  const img = new Image();
-  img.onload = () => {
-    canvas.width  = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-  img.src = src;
+  if (!canvas) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      canvas.width  = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      resolve();
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
 }
 
 function readFileAsDataURL(file) {
@@ -303,9 +308,41 @@ function setZoom(pct) {
   if (display) display.textContent = zoom + '%';
 }
 
-function undo() { Notifications.info('Undo', 'Step undone.'); }
-function redo() { Notifications.info('Redo', 'Step redone.'); }
-function resetEditor() { Notifications.info('Reset', 'Editor reset to original.'); }
+function captureHistory() {
+  const canvas = document.getElementById('editor-canvas');
+  if (!canvas?.width || !canvas?.height) return;
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  historyStack.push(canvas.toDataURL('image/png'));
+  historyIndex = historyStack.length - 1;
+}
+
+async function restoreHistory(index) {
+  if (!historyStack[index]) return;
+  historyIndex = index;
+  await renderImageToCanvas('editor-canvas', historyStack[historyIndex]);
+}
+
+function undo() {
+  if (historyIndex <= 0) { Notifications.info('Undo', 'Nothing to undo.'); return; }
+  restoreHistory(historyIndex - 1).then(() => Notifications.info('Undo', 'Previous edit restored.'));
+}
+
+function redo() {
+  if (historyIndex >= historyStack.length - 1) { Notifications.info('Redo', 'Nothing to redo.'); return; }
+  restoreHistory(historyIndex + 1).then(() => Notifications.info('Redo', 'Edit restored.'));
+}
+
+function resetEditor() {
+  if (!processedBlob) return;
+  const url = URL.createObjectURL(processedBlob);
+  renderImageToCanvas('editor-canvas', url).then(() => {
+    URL.revokeObjectURL(url);
+    historyStack = [];
+    historyIndex = -1;
+    captureHistory();
+    Notifications.info('Reset', 'Editor reset to the processed image.');
+  });
+}
 
 async function applyBackground(type) {
   const canvas = document.getElementById('editor-canvas');
@@ -334,6 +371,7 @@ async function applyBackground(type) {
   }
   ctx.drawImage(image, 0, 0);
   URL.revokeObjectURL(image.src);
+  captureHistory();
   Notifications.info('Background Applied', `Background set to: ${type}`);
 }
 
