@@ -474,10 +474,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `antrygravity-upscaled-${selectedScale}.${format}`; a.style.display = 'none';
+      a.href = url; a.download = `antrygravity-upscaled-${selectedScale}.${format}`;
+      a.setAttribute('aria-hidden', 'true'); a.style.position = 'fixed'; a.style.left = '-9999px';
       document.body.appendChild(a);
       a.click();
-      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+      a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 30000);
       Notifications.success('Downloaded!', `${selectedScale.toUpperCase()} image saved.`);
     }, mime, 0.92);
   });

@@ -422,14 +422,22 @@ function downloadResult() {
 
   exportCanvas.toBlob((blob) => {
     if (!blob) { Notifications.error('Export Error', 'Could not generate image.'); return; }
+    if (window.navigator.msSaveOrOpenBlob) {
+      window.navigator.msSaveOrOpenBlob(blob, `antrygravity-result.${format}`);
+      Notifications.success('Downloaded!', `Image saved as ${format.toUpperCase()}.`);
+      return;
+    }
     const url  = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href     = url;
     link.download = `antrygravity-result.${format}`;
-    link.style.display = 'none';
+    link.setAttribute('aria-hidden', 'true');
+    link.style.position = 'fixed';
+    link.style.left = '-9999px';
     document.body.appendChild(link);
     link.click();
-    setTimeout(() => { URL.revokeObjectURL(url); link.remove(); }, 1000);
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+    setTimeout(() => { URL.revokeObjectURL(url); link.remove(); }, 30000);
     Notifications.success('Downloaded!', `Image saved as ${format.toUpperCase()}.`);
   }, mime, quality);
 }
