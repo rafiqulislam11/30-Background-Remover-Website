@@ -317,6 +317,7 @@ import { AIProvider } from './js/services/ai-provider.js';
 import { CreditService } from './js/services/credit-service.js';
 import { Notifications } from './js/components/notifications.js';
 import { BeforeAfterSlider } from './js/components/before-after.js';
+import AppConfig from './config/app.config.js';
 
 const creditCostMap = { '2k': 2, '4k': 4, '8k': 8 };
 const resMap = { '2k': '2048px', '4k': '4096px', '8k': '7680px' };
@@ -400,10 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Init slider
         if (!sliderInited) {
-          new BeforeAfterSlider({
-            container: document.getElementById('compare-inner'),
-            querySelector: (el, sel) => el.querySelector(sel),
-          });
+          new BeforeAfterSlider(document.getElementById('compare-inner'));
           sliderInited = true;
         }
       };
@@ -422,23 +420,36 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('start-upscale-btn').disabled = true;
 
     try {
-      await AIProvider.demoRemoveBackground(uploadedFile, pct => {
+      const progress = pct => {
         document.getElementById('upscale-progress-bar').style.width = pct + '%';
         if (pct < 30) document.getElementById('upscale-progress-label').textContent = 'Analyzing resolution...';
         else if (pct < 60) document.getElementById('upscale-progress-label').textContent = 'Enhancing details...';
         else if (pct < 90) document.getElementById('upscale-progress-label').textContent = 'Applying sharpness...';
         else document.getElementById('upscale-progress-label').textContent = 'Finalizing...';
-      });
+      };
+      const resultBlob = AppConfig.demoMode
+        ? await AIProvider.demoRemoveBackground(uploadedFile, progress)
+        : await AIProvider.upscale(uploadedFile, selectedScale, progress);
 
-      // Show after (use same image in demo)
+      // Render a real larger canvas in demo mode; use the provider blob in production.
       const beforeCanvas = document.getElementById('before-canvas');
       const afterCanvas = document.getElementById('after-canvas');
-      afterCanvas.width = beforeCanvas.width; afterCanvas.height = beforeCanvas.height;
+      const resultImage = new Image();
+      resultImage.src = URL.createObjectURL(resultBlob);
+      await new Promise((resolve, reject) => {
+        resultImage.onload = resolve;
+        resultImage.onerror = reject;
+      });
+      const targetSize = Number.parseInt(resMap[selectedScale], 10);
+      const scale = AppConfig.demoMode
+        ? Math.max(1, targetSize / Math.max(beforeCanvas.width, beforeCanvas.height))
+        : 1;
+      afterCanvas.width = Math.round(beforeCanvas.width * scale);
+      afterCanvas.height = Math.round(beforeCanvas.height * scale);
       const ctx = afterCanvas.getContext('2d');
-      ctx.drawImage(beforeCanvas, 0, 0);
-      // Apply a slight sharpening filter visually
       ctx.filter = 'contrast(1.05) saturate(1.05)';
-      ctx.drawImage(beforeCanvas, 0, 0);
+      ctx.drawImage(resultImage, 0, 0, afterCanvas.width, afterCanvas.height);
+      URL.revokeObjectURL(resultImage.src);
       afterCanvas.style.display = 'block';
       document.getElementById('after-placeholder').style.display = 'none';
 

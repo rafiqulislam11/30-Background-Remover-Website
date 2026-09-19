@@ -18,6 +18,7 @@ let historyStack  = [];
 let historyIndex  = -1;
 let zoom = 100;
 let currentBackgroundColor = '#ffffff';
+let processingCancelled = false;
 
 document.addEventListener('DOMContentLoaded', () => {
   ThemeManager.init();
@@ -110,11 +111,14 @@ async function startProcessing() {
   };
 
   try {
+    processingCancelled = false;
     // Use the configured backend when available; keep the local demo usable for UI previews.
     const useDemo = AppConfig.demoMode === true;
     processedBlob = useDemo
       ? await AIProvider.demoRemoveBackground(currentFile, updateStep)
       : await AIProvider.removeBackground(currentFile, updateStep);
+
+    if (processingCancelled) return;
 
     // Deduct credits after successful processing
     CreditService.deduct('backgroundRemoval');
@@ -217,7 +221,16 @@ function initEditorControls() {
   });
 
   // New image
-  document.getElementById('btn-new-image')?.addEventListener('click', showUploadAgain);
+  document.querySelectorAll('#btn-new-image').forEach(btn => {
+    btn.addEventListener('click', showUploadAgain);
+  });
+
+  document.getElementById('btn-cancel-processing')?.addEventListener('click', () => {
+    processingCancelled = true;
+    document.getElementById('processing-view')?.classList.add('hidden');
+    showUploadAgain();
+    Notifications.info('Cancelled', 'Image processing was cancelled.');
+  });
 
   // Background options
   document.querySelectorAll('.bg-option').forEach(opt => {
@@ -343,7 +356,9 @@ function initExportPanel() {
   });
 
   // Download button
-  document.getElementById('btn-download')?.addEventListener('click', downloadResult);
+  document.querySelectorAll('#btn-download, #btn-download-bar').forEach(btn => {
+    btn.addEventListener('click', downloadResult);
+  });
 }
 
 function downloadResult() {

@@ -287,7 +287,8 @@ async function startBatch() {
     onItemStart: item => {
       const idx = processor.queue.indexOf(item);
       document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-warning');
-      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('textContent', 'Processing');
+      const badge = document.getElementById(`fs-${idx}`)?.querySelector('.badge');
+      if (badge) badge.textContent = 'Processing';
     },
     onItemProgress: (item, pct) => {
       const idx = processor.queue.indexOf(item);
@@ -296,8 +297,16 @@ async function startBatch() {
     },
     onItemComplete: item => {
       done++;
+      CreditService.deduct('batchPerImage');
       const idx = processor.queue.indexOf(item);
-      document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-success');
+      const badge = document.getElementById(`fs-${idx}`)?.querySelector('.badge');
+      if (badge) {
+        badge.setAttribute('class', 'badge badge-success');
+        badge.textContent = 'Done';
+      }
+      document.querySelectorAll('[data-credits-display]').forEach(el => {
+        el.textContent = CreditService.getBalance();
+      });
       const pct = Math.round((done / files.length) * 100);
       document.getElementById('overall-progress-bar').style.width = pct + '%';
       document.getElementById('progress-pct').textContent = pct + '%';
@@ -307,11 +316,12 @@ async function startBatch() {
       const idx = processor.queue.indexOf(item);
       document.getElementById(`fs-${idx}`)?.querySelector('.badge')?.setAttribute('class', 'badge badge-danger');
     },
-    onAllComplete: () => {
+    onAllComplete: queue => {
       document.getElementById('btn-stop-batch').style.display = 'none';
       document.getElementById('btn-download-all').style.display = '';
       document.getElementById('batch-status').style.display = 'none';
-      Notifications.success('All Done!', `${done} images processed successfully.`);
+      const failed = queue.filter(item => item.status === 'failed').length;
+      Notifications.success('Batch Complete', `${done} images processed${failed ? `, ${failed} failed` : ''}.`);
     },
   });
   processor.addFiles(files);

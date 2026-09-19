@@ -46,7 +46,11 @@ export class BatchProcessor {
       this.onItemStart(item);
 
       try {
-        const resultBlob = await AIProvider.demoRemoveBackground(
+        const process = AppConfig.demoMode
+          ? AIProvider.demoRemoveBackground
+          : AIProvider.removeBackground;
+        const resultBlob = await process.call(
+          AIProvider,
           item.file,
           (pct) => {
             item.progress = pct;

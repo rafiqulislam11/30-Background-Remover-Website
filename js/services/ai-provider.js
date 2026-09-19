@@ -39,10 +39,15 @@ export class AIProvider {
     formData.append('image', file);
     formData.append('scale', scale);
 
-    return this._fetchWithTimeout(endpoint, {
+    const response = await this._fetchWithTimeout(endpoint, {
       method: 'POST',
       body: formData,
     }, AppConfig.aiProviders.upscaler.timeoutMs, onProgress);
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new AIProviderError(error.message || `Upscale failed (${response.status})`, response.status);
+    }
+    return response.blob();
   }
 
   /**

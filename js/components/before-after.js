@@ -8,8 +8,10 @@ export class BeforeAfterSlider {
     this.isDragging = false;
     this.position = 50; // percentage
 
-    this.afterEl  = container.querySelector('.ba-after');
-    this.handle   = container.querySelector('.ba-handle');
+    if (!container) return;
+
+    this.afterEl  = container.querySelector('.ba-after, .compare-after');
+    this.handle   = container.querySelector('.ba-handle, .compare-handle, #upscale-handle');
 
     this._bind();
     this._setPosition(50);
@@ -35,8 +37,10 @@ export class BeforeAfterSlider {
       this.container.style.cursor = 'col-resize';
     };
 
-    this.handle.addEventListener('mousedown', onStart);
-    this.handle.addEventListener('touchstart', onStart, { passive: false });
+    if (this.handle) {
+      this.handle.addEventListener('mousedown', onStart);
+      this.handle.addEventListener('touchstart', onStart, { passive: false });
+    }
     this.container.addEventListener('mousedown', onStart);
     this.container.addEventListener('touchstart', onStart, { passive: false });
     window.addEventListener('mousemove', onMove);
