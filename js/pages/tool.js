@@ -378,9 +378,9 @@ async function applyBackground(type) {
 // ─── Export ───────────────────────────────────────────────
 function initExportPanel() {
   // Format selection
-  document.querySelectorAll('.export-format-btn').forEach(btn => {
+  document.querySelectorAll('.export-format-btn[data-format]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.export-format-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.export-format-btn[data-format]').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
     });
   });
@@ -400,8 +400,8 @@ function initExportPanel() {
 }
 
 function downloadResult() {
-  const formatBtn = document.querySelector('.export-format-btn.active');
-  const format = formatBtn ? formatBtn.dataset.format : 'png';
+  const formatBtn = document.querySelector('.export-format-btn[data-format].active');
+  const format = formatBtn?.dataset.format || 'png';
   const canvas = document.getElementById('editor-canvas');
   if (!canvas) { Notifications.error('No Image', 'Process an image first.'); return; }
 
